@@ -32,12 +32,13 @@ class SourceCodeDigraph:
         This is a directed graph of the source code
     """
 
-    def __init__(self, abstract_syntax_tree):
+    def __init__(self, abstract_syntax_tree, create_visual = True):
         """
             param abstract_syntax_tree: an ast object
         """
         self.abstract_syntax_tree   = abstract_syntax_tree
         self.node_count             = 0
+        self.create_visual          = create_visual
 
     def index_exists(self, index, list):
         """

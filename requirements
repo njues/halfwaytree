@@ -1,3 +1,6 @@
+graphviz:
+    -used by pygraphviz
+
 pygraphviz:
     -used for graphically representing symbolic trees
     -used for the development version
