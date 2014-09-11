@@ -37,15 +37,16 @@ class SourceCodeDigraph:
         """
         self.abstract_syntax_tree = abstract_syntax_tree
 
-    def return_digraph_segment_from_body(self, body):
-        local_digraph = []
-        for index, item in enumerate(body):
-            local_type          = type(item).__name__
-            local_statement     = "{0}={1}".format(item.targets[0].id, item.value.n)
-            local_contraints    = []
-            local_solutions     = []
-            local_digraph.append(Node(local_type, local_statement, local_contraints, local_solutions))
-            a=1
+    def index_exists(self, index, list):
+        """
+            param list: list
+            param index: int
+            this returns true if the list[index] exists
+        """
+
+        if len(list) > index:
+            return True
+        return False
 
     def return_node_and_all_its_children(self, this_index, this_body, parent_index = None, parent_body = None):
         """
@@ -59,31 +60,26 @@ class SourceCodeDigraph:
         node_statement      = ""
 
 
-        if node_type == "Assign":
+        if      node_type == "Assign":
             node_statement = "{0}={1}".format(node.targets[0].id, node.value.n)
-            node_children.append(self.return_node_and_all_its_children(this_index+1, this_body))
-        elif node_type == "if":
+        elif    node_type == "Print":
+            node_statement = 'print "{0}"'.format(node.values[0].s)
+        elif    node_type == "If":
             """
                 add true branch of if statement,
                 code adds statements inside if body
             """
             node_children.append(self.return_node_and_all_its_children(0, node.body, this_index, this_body))
 
-            if parent_index+1  <= len(parent_body):
-                """
-                    add false branch of if statement,
-                    here code skips over entire if body
-                """
-                node_children.append(self.return_node_and_all_its_children(parent_index+1, parent_body))
 
-        if( this_index+1    >= len(this_body) and
-            parent_index    != None and
-            parent_index+1  <= len(parent_body)):
-            """
-                if inner branch is exhausted, then add node from outer branch as child.
-                When inner branch is finished, continue adding
-            """
-            node_children.append(self.return_node_and_all_its_children(parent_index+1, parent_body))
+        if self.index_exists(this_index+1, this_body):
+            #if the index exists in this body, add it as a child
+            node_children.append(self.return_node_and_all_its_children(this_index+1, this_body, parent_index, parent_body))
+        else:
+            #here when at the end of the this body
+            if parent_body != None and self.index_exists(parent_index+1, parent_body):
+                #if the parent boy has more node, then start adding nodes from the parent body
+                node_children.append(self.return_node_and_all_its_children(parent_index+1, parent_body))
 
 
         return Node(node_type, node_statement, node_contraints, node_solutions, node_children)
