@@ -12,7 +12,7 @@
 
 
 class Node:
-    def __init__(self, type, statement, contraints, solutions, children):
+    def __init__(self, type, statement, contraints, solutions, children, node_id):
         """
             param type: string
             param statement: string
@@ -25,6 +25,7 @@ class Node:
         self.constraints    = contraints
         self.solutions      = solutions
         self.children       = children
+        self.node_id        = node_id
 
 class SourceCodeDigraph:
     """
@@ -35,7 +36,8 @@ class SourceCodeDigraph:
         """
             param abstract_syntax_tree: an ast object
         """
-        self.abstract_syntax_tree = abstract_syntax_tree
+        self.abstract_syntax_tree   = abstract_syntax_tree
+        self.node_count             = 0
 
     def index_exists(self, index, list):
         """
@@ -58,6 +60,9 @@ class SourceCodeDigraph:
         node_solutions      = []
         node_children       = []
         node_statement      = ""
+        node_id             = self.node_count
+
+        self.node_count += 1
 
 
         if      node_type == "Assign":
@@ -82,7 +87,7 @@ class SourceCodeDigraph:
                 node_children.append(self.return_node_and_all_its_children(parent_index+1, parent_body))
 
 
-        return Node(node_type, node_statement, node_contraints, node_solutions, node_children)
+        return Node(node_type, node_statement, node_contraints, node_solutions, node_children, node_id)
 
 
 
