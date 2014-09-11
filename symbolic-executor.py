@@ -10,6 +10,8 @@
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
 
+import pygraphviz as pgv
+import ast
 
 class Node:
     def __init__(self, type, statement, contraints, solutions, children, node_id):
@@ -51,7 +53,22 @@ class SourceCodeDigraph:
             return True
         return False
 
-    def return_node_and_all_its_children(self, this_index, this_body, parent_index = None, parent_body = None):
+    def add_node_to_visual_digraph(self, node_statement, node_id, node_type):
+        """
+            param node_statement: string
+            param node_id: int
+            param node_type: string
+        """
+        self.visual_digraph.add_node(node_id)
+
+    def connect_node_to_parent_node_on_visual_digraph(self, node_id, parent_node_id):
+        """
+            param node_id: int
+            param prent_node_id: int
+        """
+        self.visual_digraph.add_edge(node_id, parent_node_id)
+
+    def return_node_and_all_its_children(self, this_index, this_body, parent_index = None, parent_body = None, parent_node_id = 0):
         """
             method returns node and all its siblings
         """
@@ -75,20 +92,27 @@ class SourceCodeDigraph:
                 add true branch of if statement,
                 code adds statements inside if body
             """
-            node_children.append(self.return_node_and_all_its_children(0, node.body, this_index, this_body))
+            node_children.append(self.return_node_and_all_its_children(0, node.body, this_index, this_body, node_id))
 
+        if self.create_visual:
+            #add node to visual digraph
+            self.add_node_to_visual_digraph(node_statement, node_id, node_type)
+
+            if node_id > 0:
+                #connect node to a parent digraph
+                self.connect_node_to_parent_node_on_visual_digraph(node_id, parent_node_id)
 
         if self.index_exists(this_index+1, this_body):
             #if the index exists in this body, add it as a child
-            node_children.append(self.return_node_and_all_its_children(this_index+1, this_body, parent_index, parent_body))
+            node_children.append(self.return_node_and_all_its_children(this_index+1, this_body, parent_index, parent_body, node_id))
         else:
             #here when at the end of the this body
             if parent_body != None and self.index_exists(parent_index+1, parent_body):
                 #if the parent boy has more node, then start adding nodes from the parent body
-                node_children.append(self.return_node_and_all_its_children(parent_index+1, parent_body))
+                node_children.append(self.return_node_and_all_its_children(parent_index+1, parent_body, parent_node_id=node_id))
 
 
-        return Node(node_type, node_statement, node_contraints, node_solutions, node_children, node_id)
+        return Node(node_type, node_statement, node_contraints, node_solutions, node_children, parent_node_id)
 
 
 
@@ -96,6 +120,14 @@ class SourceCodeDigraph:
         """
             the digraph consists of the root node and all its siblings
         """
+
+        if self.create_visual:
+            self.visual_digraph = pgv.AGraph(strict=False, directed=True)
+            self.visual_digraph.layout(prog='dot')
+            self.visual_digraph.graph_attr['label']='State Space of Code'
+            self.visual_digraph.node_attr['shape']='rectangle' #circle, rectangle | box,
+
+
         self.digraph    = self.return_node_and_all_its_children(0, abstract_syntax_tree.body)
 
         a=1
@@ -122,14 +154,13 @@ print "done"
 
 
 
-import ast
-
 #step1: get abstract syntax tree
 abstract_syntax_tree = ast.parse(test_code1)
 
 #step2: build code_call_graph
 source_code_digraph = SourceCodeDigraph(abstract_syntax_tree)
 source_code_digraph.build_code_digraph()
+source_code_digraph.visual_digraph.draw('file.ps')
 a=1
 
 
