@@ -13,6 +13,8 @@
 import pygraphviz as pgv
 import ast
 
+
+
 class Node:
     def __init__(self, type, statement, contraints, solutions, children, node_id):
         """
@@ -59,7 +61,7 @@ class SourceCodeDigraph:
             param node_id: int
             param node_type: string
         """
-        self.visual_digraph.add_node(node_id)
+        self.visual_digraph.add_node(node_id, label=node_statement)
 
     def connect_node_to_parent_node_on_visual_digraph(self, node_id, parent_node_id):
         """
@@ -127,10 +129,8 @@ class SourceCodeDigraph:
             self.visual_digraph.graph_attr['label']='State Space of Code'
             self.visual_digraph.node_attr['shape']='rectangle' #circle, rectangle | box,
 
-
         self.digraph    = self.return_node_and_all_its_children(0, abstract_syntax_tree.body)
 
-        a=1
 
 test_code1 = """
 
@@ -160,8 +160,8 @@ abstract_syntax_tree = ast.parse(test_code1)
 #step2: build code_call_graph
 source_code_digraph = SourceCodeDigraph(abstract_syntax_tree)
 source_code_digraph.build_code_digraph()
-source_code_digraph.visual_digraph.draw('file.ps')
-a=1
+source_code_digraph.visual_digraph.draw('file.ps', prog='dot')
+
 
 
 #exec(compile(abstract_syntax_tree, filename="<ast>", mode="exec"))
