@@ -36,7 +36,7 @@ class SourceCodeDigraph:
         This is a directed graph of the source code
     """
 
-    def __init__(self, abstract_syntax_tree, create_visual = True):
+    def __init__(self, abstract_syntax_tree, create_visual=True):
         """
             param abstract_syntax_tree: an ast object
         """
@@ -61,14 +61,64 @@ class SourceCodeDigraph:
             param node_id: int
             param node_type: string
         """
-        self.visual_digraph.add_node(node_id, label=node_statement)
+        try:
+            """
+                if node already exists. This may occur because the children of this node
+                were created first and referred to the parent which created the parent
+                before this point
+            """
+            self.visual_digraph.get_node(node_id).attr['label'] = node_statement
+        except:
+            #if node does not exist, then add it
+            self.visual_digraph.add_node(node_id, label=node_statement)
+
 
     def connect_node_to_parent_node_on_visual_digraph(self, node_id, parent_node_id):
         """
             param node_id: int
             param prent_node_id: int
         """
-        self.visual_digraph.add_edge(node_id, parent_node_id)
+        self.visual_digraph.add_edge(parent_node_id, node_id)
+
+    def get_left_or_right_side_content_from_ast_conditional(self, data):
+        """
+            param data: an object from the conditional
+        """
+        if hasattr(data, 'id'):
+            return data.id
+        if hasattr(data, 'n'):
+            return data.n
+
+    def extract_comparator_from_ops(self, ops):
+        """
+            param op: string
+            this method looks at op object and translates that into a mathematical comparator
+        """
+        if ops == "Gt":
+            return ">"
+        elif ops == "GtE":
+            return ">="
+        elif ops == "LtE":
+            return "<="
+        elif ops == "Lt":
+            return "<"
+        elif ops == "Eq":
+            return "="
+
+    def extract_constraints_from_conditionals(self, conditions):
+        """
+            param conditions: list
+            this method takes a list of conditions and extracts constraints
+        """
+        constraints = []
+        for condition in conditions:
+            right_side  = self.get_left_or_right_side_content_from_ast_conditional(condition.comparators[0])
+            left_side   = self.get_left_or_right_side_content_from_ast_conditional(condition.left)
+            comparator  = self.extract_comparator_from_ops(type(condition.ops[0]).__name__)
+            constraints.append([left_side, comparator, right_side])
+
+        return constraints
+
 
     def return_node_and_all_its_children(self, this_index, this_body, parent_index = None, parent_body = None, parent_node_id = 0):
         """
@@ -94,8 +144,11 @@ class SourceCodeDigraph:
                 add true branch of if statement,
                 code adds statements inside if body
             """
+            node_contraints = self.extract_constraints_from_conditionals(node.test.values)
+            node_statement = "If"
             node_children.append(self.return_node_and_all_its_children(0, node.body, this_index, this_body, node_id))
 
+        #---------------------------------create node if needed
         if self.create_visual:
             #add node to visual digraph
             self.add_node_to_visual_digraph(node_statement, node_id, node_type)
@@ -103,6 +156,7 @@ class SourceCodeDigraph:
             if node_id > 0:
                 #connect node to a parent digraph
                 self.connect_node_to_parent_node_on_visual_digraph(node_id, parent_node_id)
+        #---------------------------------create node if needed
 
         if self.index_exists(this_index+1, this_body):
             #if the index exists in this body, add it as a child
@@ -112,7 +166,6 @@ class SourceCodeDigraph:
             if parent_body != None and self.index_exists(parent_index+1, parent_body):
                 #if the parent boy has more node, then start adding nodes from the parent body
                 node_children.append(self.return_node_and_all_its_children(parent_index+1, parent_body, parent_node_id=node_id))
-
 
         return Node(node_type, node_statement, node_contraints, node_solutions, node_children, parent_node_id)
 
@@ -133,11 +186,9 @@ class SourceCodeDigraph:
 
 
 test_code1 = """
-
 t       =4
 var1    =10
 var2    =9
-
 if var1 > var2:
     print "okay1"
     print "okay2"
@@ -150,18 +201,30 @@ print "done"
 
 """
 
+test_code2 = """
+t       =4
+var1    =10
+var2    =9
+if var1 >= -30 and var1 <= 3000 and var1 > var2 and t==3 and t>5:
+    print "okay1"
+    print "okay2"
+    print "okay3"
 
+
+print "done"
+
+"""
 
 
 
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code1)
+abstract_syntax_tree = ast.parse(test_code2)
 
 #step2: build code_call_graph
 source_code_digraph = SourceCodeDigraph(abstract_syntax_tree)
 source_code_digraph.build_code_digraph()
-source_code_digraph.visual_digraph.draw('file.ps', prog='dot')
-
+source_code_digraph.visual_digraph.draw('image.ps', prog='dot')
+source_code_digraph.visual_digraph.draw('image.png', prog='dot')
 
 
 #exec(compile(abstract_syntax_tree, filename="<ast>", mode="exec"))
