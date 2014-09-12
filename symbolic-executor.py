@@ -67,7 +67,7 @@ class SourceCodeDigraph:
                 were created first and referred to the parent which created the parent
                 before this point
             """
-            self.visual_digraph.get_node(node_id).attr['label'] = node_statement
+            self.visual_digraph.get_node(node_id).attr.update(label=node_statement, shape='box')
         except:
             #if node does not exist, then add it
             self.visual_digraph.add_node(node_id, label=node_statement)
@@ -119,6 +119,22 @@ class SourceCodeDigraph:
 
         return constraints
 
+    def flatten_constraints(self, constraints):
+        """
+            param constraints: list
+        """
+        output_string = ""
+        for constraint in constraints:
+            for index, content in enumerate(constraint):
+
+                if index == 1:
+                    #this is so the constraints will have padding around it
+                    output_string += " {0} ".format(str(content))
+                else:
+                    output_string += str(content)
+
+            output_string += "\n"
+        return output_string
 
     def return_node_and_all_its_children(self, this_index, this_body, parent_index = None, parent_body = None, parent_node_id = 0):
         """
@@ -145,7 +161,7 @@ class SourceCodeDigraph:
                 code adds statements inside if body
             """
             node_contraints = self.extract_constraints_from_conditionals(node.test.values)
-            node_statement = "If"
+            node_statement = self.flatten_constraints(node_contraints)
             node_children.append(self.return_node_and_all_its_children(0, node.body, this_index, this_body, node_id))
 
         #---------------------------------create node if needed
