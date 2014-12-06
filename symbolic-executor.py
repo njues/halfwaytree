@@ -110,8 +110,19 @@ class SourceCodeDigraph:
             param conditions: list
             this method takes a list of conditions and extracts constraints
         """
+
+        if hasattr(conditions, 'values'):
+            condition_values = conditions.values
+        else:
+            """
+                condition.values is false when there is only one constraint.
+                In such cases, put that one constraint into a contraints array
+                and handle it as usual
+            """
+            condition_values = [conditions]
+
         constraints = []
-        for condition in conditions:
+        for condition in condition_values:
             right_side  = self.get_left_or_right_side_content_from_ast_conditional(condition.comparators[0])
             left_side   = self.get_left_or_right_side_content_from_ast_conditional(condition.left)
             comparator  = self.extract_comparator_from_ops(type(condition.ops[0]).__name__)
@@ -160,7 +171,7 @@ class SourceCodeDigraph:
                 add true branch of if statement,
                 code adds statements inside if body
             """
-            node_contraints = self.extract_constraints_from_conditionals(node.test.values)
+            node_contraints = self.extract_constraints_from_conditionals(node.test)
             node_statement = self.flatten_constraints(node_contraints)
             node_children.append(self.return_node_and_all_its_children(0, node.body, this_index, this_body, node_id))
 
@@ -239,9 +250,15 @@ if var1 >= -30 and var1 <= 3000 and t==4:
 
 print "done"
 """
+test_code4 = """
+if var1 == 30:
+    print "okay1"
+
+print "done"
+"""
 
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code2)
+abstract_syntax_tree = ast.parse(test_code4)
 
 #step2: build code_call_graph
 source_code_digraph = SourceCodeDigraph(abstract_syntax_tree)
@@ -251,14 +268,3 @@ source_code_digraph.visual_digraph.draw('image.png', prog='dot')
 
 
 #exec(compile(abstract_syntax_tree, filename="<ast>", mode="exec"))
-
-
-
-
-
-
-
-
-
-
-
