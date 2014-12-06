@@ -103,7 +103,9 @@ class SourceCodeDigraph:
         elif ops == "Lt":
             return "<"
         elif ops == "Eq":
-            return "="
+            return "=="
+        elif ops == "NotEq":
+            return "!="
 
     def extract_constraints_from_conditionals(self, conditions):
         """
@@ -250,15 +252,39 @@ if var1 >= -30 and var1 <= 3000 and t==4:
 
 print "done"
 """
+
 test_code4 = """
 if var1 == 30:
     print "okay1"
+print "done"
+"""
+
+test_code5 = """
+t       =4
+var1    =10
+var2    =9
+if var1 > var2:
+    print "okay1"
+    print "okay2"
+    print "okay3"
+
+    if t < 5:
+        var3 = 3
+        print "error"
+
+    print "okay4"
 
 print "done"
 """
 
+test_code6 = """
+if var1 != 30:
+    print "okay1"
+print "done"
+"""
+
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code4)
+abstract_syntax_tree = ast.parse(test_code6)
 
 #step2: build code_call_graph
 source_code_digraph = SourceCodeDigraph(abstract_syntax_tree)
