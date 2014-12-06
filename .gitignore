@@ -3,4 +3,4 @@
 *.ps
 *.png
 .gitignore
-.pyc
+*.pyc
