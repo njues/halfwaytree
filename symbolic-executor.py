@@ -241,7 +241,7 @@ print "done"
 """
 
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code3)
+abstract_syntax_tree = ast.parse(test_code2)
 
 #step2: build code_call_graph
 source_code_digraph = SourceCodeDigraph(abstract_syntax_tree)
