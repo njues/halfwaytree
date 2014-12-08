@@ -289,8 +289,7 @@ abstract_syntax_tree = ast.parse(test_code6)
 #step2: build code_call_graph
 source_code_digraph = SourceCodeDigraph(abstract_syntax_tree)
 source_code_digraph.build_code_digraph()
-source_code_digraph.visual_digraph.draw('image.ps', prog='dot')
-source_code_digraph.visual_digraph.draw('image.png', prog='dot')
+#source_code_digraph.visual_digraph.draw('image.ps', prog='dot')
+#source_code_digraph.visual_digraph.draw('image.png', prog='dot')
 
 
-#exec(compile(abstract_syntax_tree, filename="<ast>", mode="exec"))
