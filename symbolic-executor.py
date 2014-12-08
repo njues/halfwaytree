@@ -10,8 +10,10 @@
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
 
-import pygraphviz as pgv
+
 import ast
+import pygraphviz as pgv
+import modules.codegen as codegen
 
 
 
@@ -80,33 +82,6 @@ class SourceCodeDigraph:
         """
         self.visual_digraph.add_edge(parent_node_id, node_id)
 
-    def get_left_or_right_side_content_from_ast_conditional(self, data):
-        """
-            param data: an object from the conditional
-        """
-        if hasattr(data, 'id'):
-            return data.id
-        if hasattr(data, 'n'):
-            return data.n
-
-    def extract_comparator_from_ops(self, ops):
-        """
-            param op: string
-            this method looks at op object and translates that into a mathematical comparator
-        """
-        if ops == "Gt":
-            return ">"
-        elif ops == "GtE":
-            return ">="
-        elif ops == "LtE":
-            return "<="
-        elif ops == "Lt":
-            return "<"
-        elif ops == "Eq":
-            return "=="
-        elif ops == "NotEq":
-            return "!="
-
     def extract_constraints_from_conditionals(self, conditions):
         """
             param conditions: list
@@ -125,29 +100,16 @@ class SourceCodeDigraph:
 
         constraints = []
         for condition in condition_values:
-            right_side  = self.get_left_or_right_side_content_from_ast_conditional(condition.comparators[0])
-            left_side   = self.get_left_or_right_side_content_from_ast_conditional(condition.left)
-            comparator  = self.extract_comparator_from_ops(type(condition.ops[0]).__name__)
-            constraints.append([left_side, comparator, right_side])
+            constraints.append(codegen.to_source(condition))
 
         return constraints
 
     def flatten_constraints(self, constraints):
         """
             param constraints: list
+            this joins all the constraints into one list
         """
-        output_string = ""
-        for constraint in constraints:
-            for index, content in enumerate(constraint):
-
-                if index == 1:
-                    #this is so the constraints will have padding around it
-                    output_string += " {0} ".format(str(content))
-                else:
-                    output_string += str(content)
-
-            output_string += "\n"
-        return output_string
+        return "\n".join(constraints)
 
     def return_node_and_all_its_children(self, this_index, this_body, parent_index = None, parent_body = None, parent_node_id = 0):
         """
@@ -165,9 +127,9 @@ class SourceCodeDigraph:
 
 
         if      node_type == "Assign":
-            node_statement = "{0}={1}".format(node.targets[0].id, node.value.n)
+            node_statement = codegen.to_source(node) #"{0}={1}".format(node.targets[0].id, node.value.n)
         elif    node_type == "Print":
-            node_statement = 'print "{0}"'.format(node.values[0].s)
+            node_statement = codegen.to_source(node) #'print "{0}"'.format(node.values[0].s)
         elif    node_type == "If":
             """
                 add true branch of if statement,
@@ -278,7 +240,9 @@ print "done"
 """
 
 test_code6 = """
-if var1 != 30:
+var1 = 50
+if var1 != 30-p/b:
+    var2=(7-9*var1)/var1
     print "okay1"
 print "done"
 """
@@ -290,6 +254,6 @@ abstract_syntax_tree = ast.parse(test_code6)
 source_code_digraph = SourceCodeDigraph(abstract_syntax_tree)
 source_code_digraph.build_code_digraph()
 #source_code_digraph.visual_digraph.draw('image.ps', prog='dot')
-#source_code_digraph.visual_digraph.draw('image.png', prog='dot')
+source_code_digraph.visual_digraph.draw('image.png', prog='dot')
 
 
