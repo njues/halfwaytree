@@ -13,7 +13,7 @@
 
 import ast
 import pygraphviz as pgv
-import modules.codegen as codegen
+import modules.astor as astor
 
 
 
@@ -100,7 +100,7 @@ class SourceCodeDigraph:
 
         constraints = []
         for condition in condition_values:
-            constraints.append(codegen.to_source(condition))
+            constraints.append(astor.to_source(condition))
 
         return constraints
 
@@ -127,9 +127,9 @@ class SourceCodeDigraph:
 
 
         if      node_type == "Assign":
-            node_statement = codegen.to_source(node) #"{0}={1}".format(node.targets[0].id, node.value.n)
+            node_statement = astor.to_source(node) #"{0}={1}".format(node.targets[0].id, node.value.n)
         elif    node_type == "Print":
-            node_statement = codegen.to_source(node) #'print "{0}"'.format(node.values[0].s)
+            node_statement = astor.to_source(node) #'print "{0}"'.format(node.values[0].s)
         elif    node_type == "If":
             """
                 add true branch of if statement,
@@ -248,7 +248,7 @@ print "done"
 """
 
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code6)
+abstract_syntax_tree = ast.parse(test_code5)
 
 #step2: build code_call_graph
 source_code_digraph = SourceCodeDigraph(abstract_syntax_tree)
