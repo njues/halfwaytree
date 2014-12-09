@@ -2,20 +2,21 @@ import pygraphviz as pgv
 import modules.astor as astor
 
 class Node:
-    def __init__(self, type, statement, contraints, solutions, children, node_id):
+    def __init__(self, type, statement, state, children, node_id):
         """
             param type: string
             param statement: string
-            param constraints: list
-            param solution: list
+            param state: dictionary
+            param children: list of nodes
+            param node_id: int
         """
 
         self.type           = type
         self.statement      = statement
-        self.constraints    = contraints
-        self.solutions      = solutions
+        self.state          = state
         self.children       = children
         self.node_id        = node_id
+
 
 class SourceCodeDigraph:
     """
@@ -95,32 +96,41 @@ class SourceCodeDigraph:
         """
         return "\n".join(constraints)
 
-    def return_node_and_all_its_children(self, this_index, this_body, parent_index = None, parent_body = None, parent_node_id = 0):
+    def update_node_variable_state(self, node, variables):
+        variables[node.targets[0].id] = astor.to_source(node.value)
+        pass
+
+    def return_node_and_all_its_children(self, this_index, this_body, parent_index = None,
+                                         parent_body = None, parent_node_id = 0,
+                                         node_state = None):
         """
-            method returns node and all its siblings
+            This method returns node and all its siblings.
+            It sends the state of the previous node down to the child node.
+            The state contains the parent's constraints and variable_state
         """
         node                = this_body[this_index]
         node_type           = type(node).__name__
-        node_contraints     = []
-        node_solutions      = []
-        node_children       = []
         node_statement      = ""
+        if node_state == None:
+            node_state          = {'constraints':[], 'variables':{}}
+        node_children       = []
         node_id             = self.node_count
 
         self.node_count += 1
 
 
         if      node_type == "Assign":
-            node_statement = astor.to_source(node) #"{0}={1}".format(node.targets[0].id, node.value.n)
+            node_statement = astor.to_source(node)
+            self.update_node_variable_state(node, node_state['variables'])
         elif    node_type == "Print":
-            node_statement = astor.to_source(node) #'print "{0}"'.format(node.values[0].s)
+            node_statement = astor.to_source(node)
         elif    node_type == "If":
             """
                 add true branch of if statement,
                 code adds statements inside if body
             """
-            node_contraints = self.extract_constraints_from_conditionals(node.test)
-            node_statement = self.flatten_constraints(node_contraints)
+            node_state['constraints'] = self.extract_constraints_from_conditionals(node.test)
+            node_statement = self.flatten_constraints(node_state['constraints'])
             node_children.append(self.return_node_and_all_its_children(0, node.body, this_index, this_body, node_id))
 
         #---------------------------------create node if needed
@@ -135,14 +145,19 @@ class SourceCodeDigraph:
 
         if self.index_exists(this_index+1, this_body):
             #if the index exists in this body, add it as a child
-            node_children.append(self.return_node_and_all_its_children(this_index+1, this_body, parent_index, parent_body, node_id))
+            node_children.append(
+                self.return_node_and_all_its_children(this_index+1, this_body,
+                                                      parent_index, parent_body,
+                                                      node_id, node_state=node_state))
         else:
             #here when at the end of the this body
             if parent_body != None and self.index_exists(parent_index+1, parent_body):
                 #if the parent boy has more node, then start adding nodes from the parent body
-                node_children.append(self.return_node_and_all_its_children(parent_index+1, parent_body, parent_node_id=node_id))
+                node_children.append(
+                    self.return_node_and_all_its_children(parent_index+1, parent_body,
+                                                          parent_node_id=node_id, node_state=node_state))
 
-        return Node(node_type, node_statement, node_contraints, node_solutions, node_children, parent_node_id)
+        return Node(node_type, node_statement, node_state, node_children, parent_node_id)
 
 
 

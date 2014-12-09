@@ -85,13 +85,19 @@ if var1 != 30-p/b:
 print "done"
 """
 
-#step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code6)
+test_code7 = """
+var1 = "23"
+var1 = 2
+"""
 
-#step2: build code_call_graph
+#step1: get abstract syntax tree
+abstract_syntax_tree = ast.parse(test_code7)
+
+#step2: build code_call_graph while symbolically executing
 source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree)
 source_code_digraph.build_code_digraph()
 #source_code_digraph.visual_digraph.draw('image.ps', prog='dot')
 source_code_digraph.visual_digraph.draw('image.png', prog='dot')
+
 
 
