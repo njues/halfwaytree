@@ -88,7 +88,17 @@ print "done"
 test_code7 = """
 var1 = 2
 var2 = -3
-var1 = 2 + var1
+var1 = 2+var2
+if var1>var2 and var1>0 and var2>-8:
+    var1 = var1-2
+    if var1 >0:
+        print "okay"
+        var1=-1000
+    if var1 == -1000:
+        var1 = var1 + 5
+        print 'var1 < 0'
+    print 'hi'
+print 'end'
 """
 
 #step1: get abstract syntax tree

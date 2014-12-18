@@ -36,13 +36,14 @@ class SourceCodeDigraph:
         This is a directed graph of the source code
     """
 
-    def __init__(self, abstract_syntax_tree, create_visual=True):
+    def __init__(self, abstract_syntax_tree, create_visual=True, show_unmutated_constraints=True):
         """
             param abstract_syntax_tree: an ast object
         """
-        self.abstract_syntax_tree   = abstract_syntax_tree
-        self.node_count             = 0
-        self.create_visual          = create_visual
+        self.abstract_syntax_tree       = abstract_syntax_tree
+        self.node_count                 = 0
+        self.create_visual              = create_visual
+        self.show_unmutated_constraints   = show_unmutated_constraints
 
     def index_exists(self, index, list):
         """
@@ -80,7 +81,15 @@ class SourceCodeDigraph:
         """
         self.visual_digraph.add_edge(parent_node_id, node_id)
 
-    def extract_constraints_from_conditionals(self, conditions):
+    def make_condition_symbolic(self, condition, node_variables):
+        self.place_symbolic_variables_into_local_scope(node_variables, locals())
+        exec("local_condition ={0}".format(condition))
+        return  local_condition
+
+
+
+
+    def extract_constraints_from_conditionals(self, conditions, node_variables):
         """
             param conditions: list
             this method takes a list of conditions and extracts constraints
@@ -90,24 +99,38 @@ class SourceCodeDigraph:
             condition_values = conditions.values
         else:
             """
-                condition.values is false when there is only one constraint.
+                condition.values is absent when there is only one constraint.
                 In such cases, put that one constraint into a contraints array
                 and handle it as usual
             """
             condition_values = [conditions]
 
         constraints = []
+        """
+            unmutated constraints show the original condition which is present in the
+            code and it is a list of strings.
+            contraints show the condition with expressed in terms of variables at
+            a particular time/state and it is a list of z3 arithmetic boolean
+        """
+        unmutated_constraints = []
         for condition in condition_values:
-            constraints.append(astor.to_source(condition))
+            condition = astor.to_source(condition)
+            unmutated_constraints.append(condition)
+            condition = self.make_condition_symbolic(condition, node_variables)
+            constraints.append(condition)
 
-        return constraints
+        return constraints, unmutated_constraints
 
     def flatten_constraints(self, constraints):
         """
-            param constraints: list
-            this joins all the constraints into one list
+            param constraints: has list of z3 arithmetic statements.
+            loop gets the string representation of arithmetic
+            and then adds it to a string
         """
-        return "\n".join(constraints)
+        out = ""
+        for item in constraints:
+            out = item.__str__() + "\n" + out
+        return out
 
     def variable_is_type(self, variable, string_of_type):
         return type(variable).__name__ == string_of_type
@@ -142,17 +165,29 @@ class SourceCodeDigraph:
         if hasattr(node.value, 'n') and \
             self.variable_is_type(node.value.n, "int"):
             """
-                when variable is defined as an integer,
+                when variable is defined/assigned as an integer,
                 symbolically define it with z3
             """
-            variables[node.targets[0].id] = z3.Int(node.targets[0].id)
+
+            if node.targets[0].id in variables:
+                """
+                    if this variable is in scope,it's being redefined.
+                    So make it concrete
+                """
+                variables[node.targets[0].id] = node.value.n
+            else:
+                """
+                    if this variable is not in scope,it's being defined for the first time.
+                    So make it symbolic
+                """
+                variables[node.targets[0].id] = z3.Int(node.targets[0].id)
         else:
             if node.targets[0].id in variables:
                 #if this variable is in variable scope
 
                 statement = astor.to_source(node)
                 self.place_symbolic_variables_into_local_scope(variables, locals())
-                exec(statement)
+                exec(statement) #symbolic execution occurs here
                 self.place_local_variables_into_symbolic_scope(variables, locals())
             else:
                 """
@@ -160,13 +195,6 @@ class SourceCodeDigraph:
                     integer value
                 """
                 raise ValueError("Halfwaytree only works with Integer variables")
-        pass
-
-
-
-
-
-
 
 
     def return_node_and_all_its_children(self, this_index, this_body, parent_index = None,
@@ -198,9 +226,17 @@ class SourceCodeDigraph:
                 add true branch of if statement,
                 code adds statements inside if body
             """
-            node_state['constraints'] = self.extract_constraints_from_conditionals(node.test)
-            node_statement = self.flatten_constraints(node_state['constraints'])
-            node_children.append(self.return_node_and_all_its_children(0, node.body, this_index, this_body, node_id))
+            node_state['constraints'], unmutated_constraints = \
+                self.extract_constraints_from_conditionals(node.test, node_state['variables'])
+
+            #node statement is used on the visual representation of the digraph
+            if self.show_unmutated_constraints:
+                node_statement = self.flatten_constraints(unmutated_constraints)
+            else:
+                node_statement = self.flatten_constraints(node_state['constraints'])
+
+            node_children.append(self.return_node_and_all_its_children(0, node.body, this_index, this_body,
+                                                                       node_id, node_state=node_state))
 
         #---------------------------------create node if needed
         if self.create_visual:
