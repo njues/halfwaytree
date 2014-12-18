@@ -86,7 +86,7 @@ print "done"
 """
 
 test_code7 = """
-var1 = 23
+var1 = 2
 var2 = -3
 var1 = 2 + var1
 """

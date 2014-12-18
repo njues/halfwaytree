@@ -12,6 +12,7 @@
 
 import pygraphviz as pgv
 import modules.astor as astor
+import z3
 
 class Node:
     def __init__(self, type, statement, state, children, node_id):
@@ -108,9 +109,65 @@ class SourceCodeDigraph:
         """
         return "\n".join(constraints)
 
+    def variable_is_type(self, variable, string_of_type):
+        return type(variable).__name__ == string_of_type
+
+    def place_symbolic_variables_into_local_scope(self,
+                                         symbolic_variable_scope,
+                                         local_scope):
+        """
+            the symbolic scope is a dictionary containing
+            symbolic variables.
+            the local scope is the dictionary containing
+            the local variables.
+            (passed by reference)
+        """
+        for key, value in symbolic_variable_scope.iteritems():
+            local_scope[key] = value
+
+    def place_local_variables_into_symbolic_scope(self,
+                                         symbolic_variable_scope,
+                                         local_scope):
+        """
+            the symbolic scope is updated with the changes that
+            occurred in the local scope
+            (passed by reference)
+        """
+        for key, value in symbolic_variable_scope.iteritems():
+            symbolic_variable_scope[key] = local_scope[key]
+
+
     def update_node_variable_state(self, node, variables):
-        variables[node.targets[0].id] = astor.to_source(node.value)
+
+        if hasattr(node.value, 'n') and \
+            self.variable_is_type(node.value.n, "int"):
+            """
+                when variable is defined as an integer,
+                symbolically define it with z3
+            """
+            variables[node.targets[0].id] = z3.Int(node.targets[0].id)
+        else:
+            if node.targets[0].id in variables:
+                #if this variable is in variable scope
+
+                statement = astor.to_source(node)
+                self.place_symbolic_variables_into_local_scope(variables, locals())
+                exec(statement)
+                self.place_local_variables_into_symbolic_scope(variables, locals())
+            else:
+                """
+                    Code only gets here if a variable was assigned as a non-
+                    integer value
+                """
+                raise ValueError("Halfwaytree only works with Integer variables")
         pass
+
+
+
+
+
+
+
 
     def return_node_and_all_its_children(self, this_index, this_body, parent_index = None,
                                          parent_body = None, parent_node_id = 0,
