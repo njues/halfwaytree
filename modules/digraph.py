@@ -247,11 +247,34 @@ class SourceCodeDigraph:
         return number_of_statements_in_ast_body > index_of_ast_statement+1
 
 
+    def add_node_from_ast_statements_inside_if_statement_body(self, ast=None, ast_path=None, node_state=None,
+                                                        node_id=None, node_children=None):
+        """
+            code assumes current ast_path refers to an if statment
+        """
+        ast_path += ['b', 0]
+        node_children.append(
+            self.return_node_and_all_its_children2(ast=ast, ast_path=ast_path, node_state=node_state,
+                                              parent_node_id=node_id )
+        )
 
 
+    def add_node_from_ast_statements_below_in_same_body(self, ast=None, ast_path=None, node_state=None,
+                                                        node_id=None, node_children=None):
+        if self.there_is_an_ast_statement_below_in_same_body(ast_path, ast):
+            ast_path[-1] += 1
+            node_children.append(
+                self.return_node_and_all_its_children2(ast=ast, ast_path=ast_path, node_state=node_state,
+                                                  parent_node_id=node_id )
+            )
 
-    def add_node_from_ast_statements_below_in_same_body(self ):
-        pass
+    def get_node_statement_from_constraints(self, unmutated_constraints, node_state):
+        if self.show_unmutated_constraints:
+            node_statement = self.flatten_constraints(unmutated_constraints)
+        else:
+            node_statement = self.flatten_constraints(node_state['constraints'])
+
+        return node_statement
 
     def return_node_and_all_its_children2(self, ast=None, ast_path=None,
                                           node_state=None, parent_node_id=None ):
@@ -264,8 +287,8 @@ class SourceCodeDigraph:
 
         """
         if ast_path == None:
-            ast_path = [0]
-            node_state          = {'constraints':[], 'variables':{}}
+            ast_path    = [0]
+            node_state  = {'constraints':[], 'variables':{}}
         ast_statement    = self.get_ast_statement_from_path(ast_path, ast)
 
         #-------------------------initialize stuff for digraph node
@@ -281,31 +304,23 @@ class SourceCodeDigraph:
             self.update_node_variable_state(ast_statement, node_state['variables'])
         elif    node_type == "Print":
             node_statement = astor.to_source(ast_statement)
+        elif    node_type == "If":
+            """
+                add true branch of if statement,
+                code adds statements inside if body
+            """
+            node_state['constraints'], unmutated_constraints = \
+                self.extract_constraints_from_conditionals(ast_statement.test, node_state['variables'])
+
+            node_statement = self.get_node_statement_from_constraints(unmutated_constraints, node_state)
+
+            self.add_node_from_ast_statements_inside_if_statement_body(ast, ast_path, node_state,
+                                                                       node_id, node_children)
 
         self.create_node_on_digraph(node_statement, node_id, parent_node_id, node_type)
 
-        if self.there_is_an_ast_statement_below_in_same_body(ast_path, ast):
-            ast_path[-1] += 1
-            node_children.append(
-                self.return_node_and_all_its_children2(ast=ast, ast_path=ast_path, node_state=node_state,
-                                                  parent_node_id=node_id )
-            )
+        self.add_node_from_ast_statements_below_in_same_body(ast, ast_path, node_state, node_id, node_children)
 
-        """
-        if self.index_exists(this_index+1, this_body):
-            #if the index exists in this body, add it as a child
-            node_children.append(
-                self.return_node_and_all_its_children(this_index+1, this_body,
-                                                      parent_index, parent_body,
-                                                      node_id, node_state=node_state))
-        else:
-            #here when at the end of the this body
-            if parent_body != None and self.index_exists(parent_index+1, parent_body):
-                #if the parent body has more nodes, then start adding nodes from the parent body
-                node_children.append(
-                    self.return_node_and_all_its_children(parent_index+1, parent_body,
-                                                          parent_node_id=node_id, node_state=node_state))
-        """
 
         return Node(node_type, node_statement, node_state, node_children, parent_node_id)
 

@@ -105,6 +105,11 @@ test_code8 = """
 var1 = 0
 var2 = 0
 var3 = 0
+if var1==0:
+    var1 = 0
+    var2 = 0
+    var3 = 0
+print 'end'
 """
 
 test_code9 = """
