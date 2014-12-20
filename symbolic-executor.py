@@ -103,11 +103,8 @@ print 'end'
 
 test_code8 = """
 var1 = 0
-if var1 ==0:
-    print "var1 == 0"
-    if var1 ==12:
-        print "var1 ==12"
-print 'end'
+var2 = 0
+var3 = 0
 """
 
 test_code9 = """
@@ -122,7 +119,7 @@ print 'end'
 """
 
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code9)
+abstract_syntax_tree = ast.parse(test_code8)
 
 #step2: build code_call_graph while symbolically executing
 source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree)

@@ -218,7 +218,7 @@ class SourceCodeDigraph:
                 self.connect_node_to_parent_node_on_visual_digraph(node_id, parent_node_id)
         #---------------------------------create node if needed
 
-    def get_ast_body_ast_path_is_in(self, ast_path, ast):
+    def get_ast_body_that_ast_path_is_in(self, ast_path, ast):
 
         last_element_in_ast_path = ast_path[-1]
         if type(last_element_in_ast_path).__name__ == 'int':
@@ -241,10 +241,10 @@ class SourceCodeDigraph:
         if type(index_of_ast_statement).__name__ != 'int':
             raise ValueError("index of ast statement must be and integer")
 
-        ast_body = self.get_ast_body_ast_path_is_in(ast_path, ast)
+        ast_body = self.get_ast_body_that_ast_path_is_in(ast_path, ast)
         number_of_statements_in_ast_body = self.get_number_of_statements_in_ast_body(ast_body)
 
-        return number_of_statements_in_ast_body > index_of_ast_statement
+        return number_of_statements_in_ast_body > index_of_ast_statement+1
 
 
 
@@ -254,7 +254,7 @@ class SourceCodeDigraph:
         pass
 
     def return_node_and_all_its_children2(self, ast=None, ast_path=None,
-                                          node_state=None, parent_node_id=0 ):
+                                          node_state=None, parent_node_id=None ):
         """
             This method returns node and all its siblings.
             It sends the state of the previous node_state down to the child node.
