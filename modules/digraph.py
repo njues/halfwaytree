@@ -207,7 +207,7 @@ class SourceCodeDigraph:
 
         return local_ast
 
-    def create_node_on_digraph(self, node_statement, node_id, parent_id, node_type):
+    def create_node_on_digraph(self, node_statement, node_id, parent_node_id, node_type):
         #---------------------------------create node if needed
         if self.create_visual:
             #add node to visual digraph
@@ -230,10 +230,24 @@ class SourceCodeDigraph:
 
         return self.get_ast_statement_from_path(body_path, ast)
 
-    def there_is_an_ast_statement_below_in_same_body(self, ast_path, ast):
-        ast_body = self.get_ast_body_ast_path_is_in(ast_path, ast)
+    def get_number_of_statements_in_ast_body(self, ast_body):
+        return len(ast_body)
 
-        
+    def there_is_an_ast_statement_below_in_same_body(self, ast_path, ast):
+        """
+            this code assumes the ast path refers to an ast statement
+        """
+        index_of_ast_statement = ast_path[-1]
+        if type(index_of_ast_statement).__name__ != 'int':
+            raise ValueError("index of ast statement must be and integer")
+
+        ast_body = self.get_ast_body_ast_path_is_in(ast_path, ast)
+        number_of_statements_in_ast_body = self.get_number_of_statements_in_ast_body(ast_body)
+
+        return number_of_statements_in_ast_body > index_of_ast_statement
+
+
+
 
 
     def add_node_from_ast_statements_below_in_same_body(self ):
@@ -268,11 +282,16 @@ class SourceCodeDigraph:
         elif    node_type == "Print":
             node_statement = astor.to_source(ast_statement)
 
-        self.create_node_on_digraph(node_statement, node_id, parent_id, node_type)
+        self.create_node_on_digraph(node_statement, node_id, parent_node_id, node_type)
 
         if self.there_is_an_ast_statement_below_in_same_body(ast_path, ast):
-            pass
+            ast_path[-1] += 1
+            node_children.append(
+                self.return_node_and_all_its_children2(ast=ast, ast_path=ast_path, node_state=node_state,
+                                                  parent_node_id=node_id )
+            )
 
+        """
         if self.index_exists(this_index+1, this_body):
             #if the index exists in this body, add it as a child
             node_children.append(
@@ -286,6 +305,7 @@ class SourceCodeDigraph:
                 node_children.append(
                     self.return_node_and_all_its_children(parent_index+1, parent_body,
                                                           parent_node_id=node_id, node_state=node_state))
+        """
 
         return Node(node_type, node_statement, node_state, node_children, parent_node_id)
 
@@ -372,7 +392,7 @@ class SourceCodeDigraph:
             self.visual_digraph.graph_attr['label']='State Space of Code'
             self.visual_digraph.node_attr['shape']='rectangle' #circle, rectangle | box,
 
-        self.digraph    = self.return_node_and_all_its_children2(ast_body=self.abstract_syntax_tree.body)
+        self.digraph    = self.return_node_and_all_its_children2(ast=self.abstract_syntax_tree.body)
 
         """
         self.digraph    = self.return_node_and_all_its_children(0, self.abstract_syntax_tree.body,
