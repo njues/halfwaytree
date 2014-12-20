@@ -294,6 +294,13 @@ class SourceCodeDigraph:
 
     def add_node_from_ast_statements_below_in_different_body(self, ast=None, ast_path=None, node_state=None,
                                                         node_id=None, node_children=None):
+
+        if self.there_is_an_ast_statement_below_in_same_body(ast_path, ast):
+            """
+                this function should only be used at the bottom of an ast_body
+            """
+            return
+
         use_ast_path = False
         while len(ast_path)>2 and not use_ast_path:
             """
@@ -342,7 +349,7 @@ class SourceCodeDigraph:
         node_id             = self.node_count
         self.node_count += 1
         #-------------------------initialize stuff for digraph node
-        if node_id == 5:
+        if node_id == 3:
             pass
 
         if      node_type == "Assign":
@@ -363,7 +370,8 @@ class SourceCodeDigraph:
             self.add_node_from_ast_statements_inside_if_statement_body(ast, list(ast_path), node_state,
                                                                        node_id, node_children)
 
-        node_statement = "Node: "+node_id.__str__() + "   " + node_statement
+        node_statement = "Node "+node_id.__str__() + ":\n" + node_statement
+
         self.create_node_on_digraph(node_statement, node_id, parent_node_id, node_type)
 
         self.add_node_from_ast_statements_below_in_same_body(ast, list(ast_path), node_state, node_id, node_children)

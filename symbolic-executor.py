@@ -79,6 +79,8 @@ print "done"
 
 test_code6 = """
 var1 = 50
+b=2
+p=4
 if var1 != 30-p/b:
     var2=(7-9*var1)/var1
     print "okay1"
@@ -122,7 +124,7 @@ print 'end'
 """
 
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code9)
+abstract_syntax_tree = ast.parse(test_code5)
 
 #step2: build code_call_graph while symbolically executing
 source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree)
