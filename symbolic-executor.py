@@ -107,8 +107,6 @@ var2 = 0
 var3 = 0
 if var1==0:
     var1 = 0
-    var2 = 0
-    var3 = 0
 print 'end'
 """
 
@@ -124,7 +122,7 @@ print 'end'
 """
 
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code8)
+abstract_syntax_tree = ast.parse(test_code9)
 
 #step2: build code_call_graph while symbolically executing
 source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree)

@@ -246,6 +246,30 @@ class SourceCodeDigraph:
 
         return number_of_statements_in_ast_body > index_of_ast_statement+1
 
+    def there_is_an_ast_statement_below_in_different_body(self, ast_path, ast):
+        """
+            this code assumes the ast path refers to an ast statement
+        """
+        index_of_ast_statement = ast_path[-1]
+        if type(index_of_ast_statement).__name__ != 'int':
+            raise ValueError("index of ast statement must be and integer")
+
+        if len(ast_path) >= 3:
+            """
+                remove the body and the index of the statement inside
+                if statement body.
+                ie: if ast_path was [1, 'b', 2], then it becomes [1]
+            """
+            ast_path = ast_path[0:-2]
+            index_of_ast_statement = ast_path[-1]
+            ast_body = self.get_ast_body_that_ast_path_is_in(ast_path, ast)
+            number_of_statements_in_ast_body = self.get_number_of_statements_in_ast_body(ast_body)
+            return number_of_statements_in_ast_body > index_of_ast_statement+1
+        else:
+            """
+                otherwise, there is no ast_body above this one, return false
+            """
+            return False
 
     def add_node_from_ast_statements_inside_if_statement_body(self, ast=None, ast_path=None, node_state=None,
                                                         node_id=None, node_children=None):
@@ -268,6 +292,26 @@ class SourceCodeDigraph:
                                                   parent_node_id=node_id )
             )
 
+    def add_node_from_ast_statements_below_in_different_body(self, ast=None, ast_path=None, node_state=None,
+                                                        node_id=None, node_children=None):
+        use_ast_path = False
+        while len(ast_path)>2 and not use_ast_path:
+            """
+                stop loop when the ast_path len is < 2
+                or when use_ast_path is true
+            """
+            if self.there_is_an_ast_statement_below_in_different_body(ast_path, ast):
+                use_ast_path = True
+            ast_path = ast_path[0:-2]
+
+        if use_ast_path:
+            #increment last index in path, to go to the next statement
+            ast_path[-1] += 1
+            node_children.append(
+                self.return_node_and_all_its_children2(ast=ast, ast_path=ast_path, node_state=node_state,
+                                                  parent_node_id=node_id )
+            )
+
     def get_node_statement_from_constraints(self, unmutated_constraints, node_state):
         if self.show_unmutated_constraints:
             node_statement = self.flatten_constraints(unmutated_constraints)
@@ -277,7 +321,7 @@ class SourceCodeDigraph:
         return node_statement
 
     def return_node_and_all_its_children2(self, ast=None, ast_path=None,
-                                          node_state=None, parent_node_id=None ):
+                                          node_state=None, parent_node_id=None):
         """
             This method returns node and all its siblings.
             It sends the state of the previous node_state down to the child node.
@@ -298,6 +342,8 @@ class SourceCodeDigraph:
         node_id             = self.node_count
         self.node_count += 1
         #-------------------------initialize stuff for digraph node
+        if node_id == 5:
+            pass
 
         if      node_type == "Assign":
             node_statement = astor.to_source(ast_statement)
@@ -314,13 +360,15 @@ class SourceCodeDigraph:
 
             node_statement = self.get_node_statement_from_constraints(unmutated_constraints, node_state)
 
-            self.add_node_from_ast_statements_inside_if_statement_body(ast, ast_path, node_state,
+            self.add_node_from_ast_statements_inside_if_statement_body(ast, list(ast_path), node_state,
                                                                        node_id, node_children)
 
+        node_statement = "Node: "+node_id.__str__() + "   " + node_statement
         self.create_node_on_digraph(node_statement, node_id, parent_node_id, node_type)
 
-        self.add_node_from_ast_statements_below_in_same_body(ast, ast_path, node_state, node_id, node_children)
+        self.add_node_from_ast_statements_below_in_same_body(ast, list(ast_path), node_state, node_id, node_children)
 
+        self.add_node_from_ast_statements_below_in_different_body(ast, list(ast_path), node_state, node_id, node_children)
 
         return Node(node_type, node_statement, node_state, node_children, parent_node_id)
 
