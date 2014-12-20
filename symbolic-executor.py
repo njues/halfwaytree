@@ -101,8 +101,28 @@ if var1>var2 and var1>0 and var2>-8:
 print 'end'
 """
 
+test_code8 = """
+var1 = 0
+if var1 ==0:
+    print "var1 == 0"
+    if var1 ==12:
+        print "var1 ==12"
+print 'end'
+"""
+
+test_code9 = """
+var1 = 0
+var2 = 0
+if var1 == 0:
+    var1 = 1
+    if var1 == 1:
+        var2 = 1
+var1 = 2
+print 'end'
+"""
+
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code7)
+abstract_syntax_tree = ast.parse(test_code9)
 
 #step2: build code_call_graph while symbolically executing
 source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree)

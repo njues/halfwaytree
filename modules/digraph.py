@@ -31,6 +31,7 @@ class Node:
         self.node_id        = node_id
 
 
+
 class SourceCodeDigraph:
     """
         This is a directed graph of the source code
@@ -196,16 +197,110 @@ class SourceCodeDigraph:
                 """
                 raise ValueError("Halfwaytree only works with Integer variables")
 
+    def get_ast_statement_from_path(self, ast_path, ast):
+        local_ast = ast
+        for item in ast_path:
+            if type(item).__name__ == 'int':
+                local_ast = local_ast[item]
+            else:
+                local_ast = local_ast.body
+
+        return local_ast
+
+    def create_node_on_digraph(self, node_statement, node_id, parent_id, node_type):
+        #---------------------------------create node if needed
+        if self.create_visual:
+            #add node to visual digraph
+            self.add_node_to_visual_digraph(node_statement, node_id, node_type)
+
+            if node_id > 0:
+                #connect node to a parent digraph
+                self.connect_node_to_parent_node_on_visual_digraph(node_id, parent_node_id)
+        #---------------------------------create node if needed
+
+    def get_ast_body_ast_path_is_in(self, ast_path, ast):
+
+        last_element_in_ast_path = ast_path[-1]
+        if type(last_element_in_ast_path).__name__ == 'int':
+            #if path refers to a statement index inside body, then get body
+            body_path = ast_path[:-1]
+        else:
+            #if the path already refers to a body
+            body_path =  ast_path
+
+        return self.get_ast_statement_from_path(body_path, ast)
+
+    def there_is_an_ast_statement_below_in_same_body(self, ast_path, ast):
+        ast_body = self.get_ast_body_ast_path_is_in(ast_path, ast)
+
+        
+
+
+    def add_node_from_ast_statements_below_in_same_body(self ):
+        pass
+
+    def return_node_and_all_its_children2(self, ast=None, ast_path=None,
+                                          node_state=None, parent_node_id=0 ):
+        """
+            This method returns node and all its siblings.
+            It sends the state of the previous node_state down to the child node.
+            The node_state contains the parent's constraints and variable_state
+
+            definitions:
+
+        """
+        if ast_path == None:
+            ast_path = [0]
+            node_state          = {'constraints':[], 'variables':{}}
+        ast_statement    = self.get_ast_statement_from_path(ast_path, ast)
+
+        #-------------------------initialize stuff for digraph node
+        node_type           = type(ast_statement).__name__
+        node_statement      = ""
+        node_children       = []
+        node_id             = self.node_count
+        self.node_count += 1
+        #-------------------------initialize stuff for digraph node
+
+        if      node_type == "Assign":
+            node_statement = astor.to_source(ast_statement)
+            self.update_node_variable_state(ast_statement, node_state['variables'])
+        elif    node_type == "Print":
+            node_statement = astor.to_source(ast_statement)
+
+        self.create_node_on_digraph(node_statement, node_id, parent_id, node_type)
+
+        if self.there_is_an_ast_statement_below_in_same_body(ast_path, ast):
+            pass
+
+        if self.index_exists(this_index+1, this_body):
+            #if the index exists in this body, add it as a child
+            node_children.append(
+                self.return_node_and_all_its_children(this_index+1, this_body,
+                                                      parent_index, parent_body,
+                                                      node_id, node_state=node_state))
+        else:
+            #here when at the end of the this body
+            if parent_body != None and self.index_exists(parent_index+1, parent_body):
+                #if the parent body has more nodes, then start adding nodes from the parent body
+                node_children.append(
+                    self.return_node_and_all_its_children(parent_index+1, parent_body,
+                                                          parent_node_id=node_id, node_state=node_state))
+
+        return Node(node_type, node_statement, node_state, node_children, parent_node_id)
 
     def return_node_and_all_its_children(self, this_index, this_body, parent_index = None,
                                          parent_body = None, parent_node_id = 0,
-                                         node_state = None):
+                                         node_state = None, ast=None, ast_path=None):
         """
             This method returns node and all its siblings.
             It sends the state of the previous node down to the child node.
             The state contains the parent's constraints and variable_state
         """
         node                = this_body[this_index]
+
+
+
         node_type           = type(node).__name__
         node_statement      = ""
         if node_state == None:
@@ -257,7 +352,7 @@ class SourceCodeDigraph:
         else:
             #here when at the end of the this body
             if parent_body != None and self.index_exists(parent_index+1, parent_body):
-                #if the parent boy has more node, then start adding nodes from the parent body
+                #if the parent body has more nodes, then start adding nodes from the parent body
                 node_children.append(
                     self.return_node_and_all_its_children(parent_index+1, parent_body,
                                                           parent_node_id=node_id, node_state=node_state))
@@ -277,4 +372,9 @@ class SourceCodeDigraph:
             self.visual_digraph.graph_attr['label']='State Space of Code'
             self.visual_digraph.node_attr['shape']='rectangle' #circle, rectangle | box,
 
-        self.digraph    = self.return_node_and_all_its_children(0, self.abstract_syntax_tree.body)
+        self.digraph    = self.return_node_and_all_its_children2(ast_body=self.abstract_syntax_tree.body)
+
+        """
+        self.digraph    = self.return_node_and_all_its_children(0, self.abstract_syntax_tree.body,
+                                                                ast=self.abstract_syntax_tree.body)
+        """
