@@ -183,19 +183,10 @@ class SourceCodeDigraph:
                 """
                 variables[node.targets[0].id] = z3.Int(node.targets[0].id)
         else:
-            if node.targets[0].id in variables:
-                #if this variable is in variable scope
-
-                statement = astor.to_source(node)
-                self.place_symbolic_variables_into_local_scope(variables, locals())
-                exec(statement) #symbolic execution occurs here
-                self.place_local_variables_into_symbolic_scope(variables, locals())
-            else:
-                """
-                    Code only gets here if a variable was assigned as a non-
-                    integer value
-                """
-                raise ValueError("Halfwaytree only works with Integer variables")
+            statement = astor.to_source(node)
+            self.place_symbolic_variables_into_local_scope(variables, locals())
+            exec(statement) #symbolic execution occurs here
+            self.place_local_variables_into_symbolic_scope(variables, locals())
 
     def get_ast_statement_from_path(self, ast_path, ast):
         local_ast = ast
@@ -278,7 +269,7 @@ class SourceCodeDigraph:
         """
         ast_path += ['b', 0]
         node_children.append(
-            self.return_node_and_all_its_children2(ast=ast, ast_path=ast_path, node_state=node_state,
+            self.return_node_and_all_its_children(ast=ast, ast_path=ast_path, node_state=node_state,
                                               parent_node_id=node_id )
         )
 
@@ -288,7 +279,7 @@ class SourceCodeDigraph:
         if self.there_is_an_ast_statement_below_in_same_body(ast_path, ast):
             ast_path[-1] += 1
             node_children.append(
-                self.return_node_and_all_its_children2(ast=ast, ast_path=ast_path, node_state=node_state,
+                self.return_node_and_all_its_children(ast=ast, ast_path=ast_path, node_state=node_state,
                                                   parent_node_id=node_id )
             )
 
@@ -315,7 +306,7 @@ class SourceCodeDigraph:
             #increment last index in path, to go to the next statement
             ast_path[-1] += 1
             node_children.append(
-                self.return_node_and_all_its_children2(ast=ast, ast_path=ast_path, node_state=node_state,
+                self.return_node_and_all_its_children(ast=ast, ast_path=ast_path, node_state=node_state,
                                                   parent_node_id=node_id )
             )
 
@@ -327,7 +318,7 @@ class SourceCodeDigraph:
 
         return node_statement
 
-    def return_node_and_all_its_children2(self, ast=None, ast_path=None,
+    def return_node_and_all_its_children(self, ast=None, ast_path=None,
                                           node_state=None, parent_node_id=None):
         """
             This method returns node and all its siblings.
@@ -349,8 +340,6 @@ class SourceCodeDigraph:
         node_id             = self.node_count
         self.node_count += 1
         #-------------------------initialize stuff for digraph node
-        if node_id == 3:
-            pass
 
         if      node_type == "Assign":
             node_statement = astor.to_source(ast_statement)
@@ -380,77 +369,6 @@ class SourceCodeDigraph:
 
         return Node(node_type, node_statement, node_state, node_children, parent_node_id)
 
-    def return_node_and_all_its_children(self, this_index, this_body, parent_index = None,
-                                         parent_body = None, parent_node_id = 0,
-                                         node_state = None, ast=None, ast_path=None):
-        """
-            This method returns node and all its siblings.
-            It sends the state of the previous node down to the child node.
-            The state contains the parent's constraints and variable_state
-        """
-        node                = this_body[this_index]
-
-
-
-        node_type           = type(node).__name__
-        node_statement      = ""
-        if node_state == None:
-            node_state          = {'constraints':[], 'variables':{}}
-        node_children       = []
-        node_id             = self.node_count
-
-        self.node_count += 1
-
-
-        if      node_type == "Assign":
-            node_statement = astor.to_source(node)
-            self.update_node_variable_state(node, node_state['variables'])
-        elif    node_type == "Print":
-            node_statement = astor.to_source(node)
-        elif    node_type == "If":
-            """
-                add true branch of if statement,
-                code adds statements inside if body
-            """
-            node_state['constraints'], unmutated_constraints = \
-                self.extract_constraints_from_conditionals(node.test, node_state['variables'])
-
-            #node statement is used on the visual representation of the digraph
-            if self.show_unmutated_constraints:
-                node_statement = self.flatten_constraints(unmutated_constraints)
-            else:
-                node_statement = self.flatten_constraints(node_state['constraints'])
-
-            node_children.append(self.return_node_and_all_its_children(0, node.body, this_index, this_body,
-                                                                       node_id, node_state=node_state))
-
-        #---------------------------------create node if needed
-        if self.create_visual:
-            #add node to visual digraph
-            self.add_node_to_visual_digraph(node_statement, node_id, node_type)
-
-            if node_id > 0:
-                #connect node to a parent digraph
-                self.connect_node_to_parent_node_on_visual_digraph(node_id, parent_node_id)
-        #---------------------------------create node if needed
-
-        if self.index_exists(this_index+1, this_body):
-            #if the index exists in this body, add it as a child
-            node_children.append(
-                self.return_node_and_all_its_children(this_index+1, this_body,
-                                                      parent_index, parent_body,
-                                                      node_id, node_state=node_state))
-        else:
-            #here when at the end of the this body
-            if parent_body != None and self.index_exists(parent_index+1, parent_body):
-                #if the parent body has more nodes, then start adding nodes from the parent body
-                node_children.append(
-                    self.return_node_and_all_its_children(parent_index+1, parent_body,
-                                                          parent_node_id=node_id, node_state=node_state))
-
-        return Node(node_type, node_statement, node_state, node_children, parent_node_id)
-
-
 
     def build_code_digraph(self):
         """
@@ -463,9 +381,4 @@ class SourceCodeDigraph:
             self.visual_digraph.graph_attr['label']='State Space of Code'
             self.visual_digraph.node_attr['shape']='rectangle' #circle, rectangle | box,
 
-        self.digraph    = self.return_node_and_all_its_children2(ast=self.abstract_syntax_tree.body)
-
-        """
-        self.digraph    = self.return_node_and_all_its_children(0, self.abstract_syntax_tree.body,
-                                                                ast=self.abstract_syntax_tree.body)
-        """
+        self.digraph    = self.return_node_and_all_its_children(ast=self.abstract_syntax_tree.body)
