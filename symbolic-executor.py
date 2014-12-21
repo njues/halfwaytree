@@ -127,7 +127,11 @@ print 'end'
 abstract_syntax_tree = ast.parse(test_code5)
 
 #step2: build code_call_graph while symbolically executing
-source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree)
+source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree,
+                                                show_node_id=True,
+                                                create_visual=True,
+                                                show_unmutated_constraints=True
+                                                )
 source_code_digraph.build_code_digraph()
 #source_code_digraph.visual_digraph.draw('image.ps', prog='dot')
 source_code_digraph.visual_digraph.draw('image.png', prog='dot')

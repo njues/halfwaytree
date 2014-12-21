@@ -37,14 +37,16 @@ class SourceCodeDigraph:
         This is a directed graph of the source code
     """
 
-    def __init__(self, abstract_syntax_tree, create_visual=True, show_unmutated_constraints=True):
+    def __init__(self, abstract_syntax_tree, create_visual=True, show_unmutated_constraints=True,
+                 show_node_id=True):
         """
             param abstract_syntax_tree: an ast object
         """
         self.abstract_syntax_tree       = abstract_syntax_tree
         self.node_count                 = 0
         self.create_visual              = create_visual
-        self.show_unmutated_constraints   = show_unmutated_constraints
+        self.show_unmutated_constraints = show_unmutated_constraints
+        self.show_node_id               =show_node_id
 
     def index_exists(self, index, list):
         """
@@ -318,6 +320,13 @@ class SourceCodeDigraph:
 
         return node_statement
 
+    def modify_node_statement(self, node_statement, node_id):
+        if self.show_node_id:
+            return "Node "+node_id.__str__() + ":\n" + node_statement
+        else:
+            return node_statement
+
+
     def return_node_and_all_its_children(self, ast=None, ast_path=None,
                                           node_state=None, parent_node_id=None):
         """
@@ -359,7 +368,7 @@ class SourceCodeDigraph:
             self.add_node_from_ast_statements_inside_if_statement_body(ast, list(ast_path), node_state,
                                                                        node_id, node_children)
 
-        node_statement = "Node "+node_id.__str__() + ":\n" + node_statement
+        node_statement = self.modify_node_statement(node_statement, node_id)
 
         self.create_node_on_digraph(node_statement, node_id, parent_node_id, node_type)
 
