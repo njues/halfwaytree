@@ -123,8 +123,17 @@ var1 = 2
 print 'end'
 """
 
+test_code10 = """
+var1 = 2
+var2 = 4
+if var1 > var2:
+    var1 = 1 + var1
+    if var2 < 10:
+        var2 = var1+8
+print 'end'
+"""
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code5)
+abstract_syntax_tree = ast.parse(test_code10)
 
 #step2: build code_call_graph while symbolically executing
 source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree,

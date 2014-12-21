@@ -285,6 +285,26 @@ class SourceCodeDigraph:
                                                   parent_node_id=node_id )
             )
 
+    def calculate_concrete_variables_on_last_statement(self, node_state, ast_path, ast, node_id):
+
+        if not self.there_is_an_ast_statement_below_in_same_body(ast_path, ast):
+            #if this ast body has no statement below
+
+            if len(ast_path)==1:
+                #if this statement is on the root ast_body
+                s = z3.Solver()
+                s.add(node_state['constraints'])
+                is_satisfied    = s.check()
+
+                if is_satisfied.r == 1:
+                    #if path conditions are satisfiable
+                    solutions       = s.model()
+                    print solutions
+                else:
+                    print "path unsatisfiable"
+        else:
+            return
+
     def add_node_from_ast_statements_below_in_different_body(self, ast=None, ast_path=None, node_state=None,
                                                         node_id=None, node_children=None):
 
@@ -370,11 +390,15 @@ class SourceCodeDigraph:
 
         node_statement = self.modify_node_statement(node_statement, node_id)
 
+        self.calculate_concrete_variables_on_last_statement(node_state, ast_path, ast, node_id)
+
         self.create_node_on_digraph(node_statement, node_id, parent_node_id, node_type)
 
         self.add_node_from_ast_statements_below_in_same_body(ast, list(ast_path), node_state, node_id, node_children)
 
         self.add_node_from_ast_statements_below_in_different_body(ast, list(ast_path), node_state, node_id, node_children)
+
+
 
         return Node(node_type, node_statement, node_state, node_children, parent_node_id)
 
