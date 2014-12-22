@@ -38,7 +38,7 @@ class SourceCodeDigraph:
     """
 
     def __init__(self, abstract_syntax_tree, create_visual=True, show_unmutated_constraints=True,
-                 show_node_id=True):
+                 show_node_id=True, use_html_like_label=True):
         """
             param abstract_syntax_tree: an ast object
         """
@@ -46,7 +46,8 @@ class SourceCodeDigraph:
         self.node_count                 = 0
         self.create_visual              = create_visual
         self.show_unmutated_constraints = show_unmutated_constraints
-        self.show_node_id               =show_node_id
+        self.show_node_id               = show_node_id
+        self.use_html_like_label        = use_html_like_label
 
     def index_exists(self, index, list):
         """
@@ -71,7 +72,8 @@ class SourceCodeDigraph:
                 were created first and referred to the parent which created the parent
                 before this point
             """
-            self.visual_digraph.get_node(node_id).attr.update(label=node_statement, shape='box')
+            self.visual_digraph.get_node(node_id).attr.update(label=node_statement,
+                                                              shape='box')
         except:
             #if node does not exist, then add it
             self.visual_digraph.add_node(node_id, label=node_statement)
@@ -132,7 +134,11 @@ class SourceCodeDigraph:
         """
         out = ""
         for item in constraints:
-            out = item.__str__() + "\n" + out
+            if out=="":
+                out = item.__str__()
+            else:
+                out = item.__str__() + "\n" + out
+
         return out
 
     def variable_is_type(self, variable, string_of_type):
@@ -285,7 +291,18 @@ class SourceCodeDigraph:
                                                   parent_node_id=node_id )
             )
 
-    def calculate_concrete_variables_on_last_statement(self, node_state, ast_path, ast, node_id):
+    def print_solutions(self, z3_solutions, node_state):
+        solution = ""
+        for variable in node_state['variables']:
+            if solution == "":
+                solution = str(variable) + " = " + str(z3_solutions[node_state['variables'][variable]])
+            else:
+                solution = solution + ", " + str(variable) + " = " + str(z3_solutions[node_state['variables'][variable]])
+
+
+        print solution
+
+    def calculate_concrete_variables_on_last_statement(self, node_state, ast_path, ast, node_statement):
 
         if not self.there_is_an_ast_statement_below_in_same_body(ast_path, ast):
             #if this ast body has no statement below
@@ -298,8 +315,7 @@ class SourceCodeDigraph:
 
                 if is_satisfied.r == 1:
                     #if path conditions are satisfiable
-                    solutions       = s.model()
-                    print solutions
+                    self.print_solutions(s.model(), node_state)
                 else:
                     print "path unsatisfiable"
         else:
@@ -342,9 +358,14 @@ class SourceCodeDigraph:
 
     def modify_node_statement(self, node_statement, node_id):
         if self.show_node_id:
-            return "Node "+node_id.__str__() + ":\n" + node_statement
-        else:
-            return node_statement
+            node_statement = "Node "+node_id.__str__() + ":\n" + node_statement
+
+        if self.use_html_like_label:
+            node_statement = node_statement.replace('<','&lt;')
+            node_statement = node_statement.replace('>','&gt;')
+            node_statement = node_statement.replace('\n','<br/>')
+
+        return node_statement
 
 
     def return_node_and_all_its_children(self, ast=None, ast_path=None,
@@ -390,7 +411,9 @@ class SourceCodeDigraph:
 
         node_statement = self.modify_node_statement(node_statement, node_id)
 
-        self.calculate_concrete_variables_on_last_statement(node_state, ast_path, ast, node_id)
+        node_statement = "<"+node_statement+">"
+
+        self.calculate_concrete_variables_on_last_statement(node_state, list(ast_path), ast, node_statement)
 
         self.create_node_on_digraph(node_statement, node_id, parent_node_id, node_type)
 

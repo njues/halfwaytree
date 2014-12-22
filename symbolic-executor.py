@@ -124,12 +124,10 @@ print 'end'
 """
 
 test_code10 = """
-var1 = 2
-var2 = 4
+var1 = 1
+var2 = 2
 if var1 > var2:
-    var1 = 1 + var1
-    if var2 < 10:
-        var2 = var1+8
+    print 'foo'
 print 'end'
 """
 #step1: get abstract syntax tree
