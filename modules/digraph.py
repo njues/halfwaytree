@@ -110,21 +110,28 @@ class SourceCodeDigraph:
             """
             condition_values = [conditions]
 
-        constraints = []
+        true_constraints = []
         """
             unmutated constraints show the original condition which is present in the
             code and it is a list of strings.
             contraints show the condition with expressed in terms of variables at
             a particular time/state and it is a list of z3 arithmetic boolean
         """
-        unmutated_constraints = []
+        unmutated_constraints   = []
+
+        """
+            false constraints are the negation of the true branch in an if statement.
+            Pretty much, these are the contraints when the if statement is false
+        """
+        false_constraints    = []
         for condition in condition_values:
             condition = astor.to_source(condition)
             unmutated_constraints.append(condition)
             condition = self.make_condition_symbolic(condition, node_variables)
-            constraints.append(condition)
+            true_constraints.append(condition)
+            false_constraints.append(z3.Not(condition))
 
-        return constraints, unmutated_constraints
+        return true_constraints, false_constraints, unmutated_constraints
 
     def flatten_constraints(self, constraints):
         """
@@ -365,6 +372,7 @@ class SourceCodeDigraph:
             node_statement = node_statement.replace('>','&gt;')
             node_statement = node_statement.replace('\n','<br/>')
 
+        node_statement = "<"+node_statement+">"
         return node_statement
 
 
@@ -401,17 +409,18 @@ class SourceCodeDigraph:
                 add true branch of if statement,
                 code adds statements inside if body
             """
-            node_state['constraints'], unmutated_constraints = \
+            true_constraints, false_constraints, unmutated_constraints = \
                 self.extract_constraints_from_conditionals(ast_statement.test, node_state['variables'])
 
+            true_constraints    = node_state['constraints'] + true_constraints
+            false_constraints   = node_state['constraints'] + false_constraints
             node_statement = self.get_node_statement_from_constraints(unmutated_constraints, node_state)
 
             self.add_node_from_ast_statements_inside_if_statement_body(ast, list(ast_path), node_state,
                                                                        node_id, node_children)
+            node_state['constraints'] = node_state['constraints'] + false_constraints
 
         node_statement = self.modify_node_statement(node_statement, node_id)
-
-        node_statement = "<"+node_statement+">"
 
         self.calculate_concrete_variables_on_last_statement(node_state, list(ast_path), ast, node_statement)
 
