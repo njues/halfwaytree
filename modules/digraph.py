@@ -375,6 +375,16 @@ class SourceCodeDigraph:
         node_statement = "<"+node_statement+">"
         return node_statement
 
+    def build_true_and_false_node_states_from_constraints(self, node_state,
+                                                                         true_constraints,
+                                                                         false_constraints):
+        true_node_state     = dict(node_state)
+        false_node_state    = dict(node_state)
+        true_node_state['constraints']  = true_node_state['constraints']    + true_constraints
+        false_node_state['constraints'] = false_node_state['constraints']   + false_constraints
+
+        return true_node_state, false_node_state
+
 
     def return_node_and_all_its_children(self, ast=None, ast_path=None,
                                           node_state=None, parent_node_id=None):
@@ -412,16 +422,16 @@ class SourceCodeDigraph:
             true_constraints, false_constraints, unmutated_constraints = \
                 self.extract_constraints_from_conditionals(ast_statement.test, node_state['variables'])
 
-            true_node_state     = dict(node_state)
-            false_node_state    = dict(node_state)
-            true_node_state['constraints']  = true_node_state['constraints']    + true_constraints
-            false_node_state['constraints'] = false_node_state['constraints']   + false_constraints
+            true_node_state, false_node_state = \
+                self.build_true_and_false_node_states_from_constraints(node_state,
+                                                                       true_constraints,
+                                                                       false_constraints
+                )
 
             node_statement = self.get_node_statement_from_constraints(unmutated_constraints, true_node_state)
 
             self.add_node_from_ast_statements_inside_if_statement_body(ast, list(ast_path), true_node_state,
                                                                        node_id, node_children)
-
             """
                 the following line makes the node_state equal to the false_node_state to
                 represent the branch of code executed if the if-statement conditions
