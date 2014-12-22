@@ -312,7 +312,7 @@ class SourceCodeDigraph:
         else:
             return str(node_state['variables'][variable])
 
-    def print_solutions(self, z3_solutions, node_state):
+    def get_solutions(self, z3_solutions, node_state):
         solution = ""
         for variable in node_state['variables']:
             if solution == "":
@@ -323,7 +323,7 @@ class SourceCodeDigraph:
                            self.get_concrete_value_of_variable_as_string(variable, node_state, z3_solutions)
 
 
-        print solution
+        return solution
 
     def calculate_concrete_variables_on_last_statement(self, node_state, ast_path, ast, node_statement):
 
@@ -338,11 +338,14 @@ class SourceCodeDigraph:
 
                 if is_satisfied.r == 1:
                     #if path conditions are satisfiable
-                    self.print_solutions(s.model(), node_state)
+                    string_solutions = self.get_solutions(s.model(), node_state)
                 else:
-                    print "path unsatisfiable"
-        else:
-            return
+                    string_solutions = "path unsatisfiable"
+
+                node_statement += "\n[font color='red']{0}[/font]".format(string_solutions)
+
+
+        return node_statement
 
     def add_node_from_ast_statements_below_in_different_body(self, ast=None, ast_path=None, node_state=None,
                                                         node_id=None, node_children=None):
@@ -386,6 +389,8 @@ class SourceCodeDigraph:
         if self.use_html_like_label:
             node_statement = node_statement.replace('<','&lt;')
             node_statement = node_statement.replace('>','&gt;')
+            node_statement = node_statement.replace('[','<')
+            node_statement = node_statement.replace(']','>')
             node_statement = node_statement.replace('\n','<br/>')
 
         node_statement = "<"+node_statement+">"
@@ -455,9 +460,11 @@ class SourceCodeDigraph:
             """
             node_state = false_node_state
 
-        node_statement = self.modify_node_statement(node_statement, node_id)
 
-        self.calculate_concrete_variables_on_last_statement(node_state, list(ast_path), ast, node_statement)
+
+        node_statement = self.calculate_concrete_variables_on_last_statement(node_state, list(ast_path),
+                                                                             ast, node_statement)
+        node_statement = self.modify_node_statement(node_statement, node_id)
 
         self.create_node_on_digraph(node_statement, node_id, parent_node_id, node_type)
 
