@@ -298,13 +298,29 @@ class SourceCodeDigraph:
                                                   parent_node_id=node_id )
             )
 
+    def variable_is_symbolic(self, variable_as_string, node_state):
+        """
+            this function assumes two things,
+            (1) value of variable being tracked is symbolic or int
+            (2) variable_as_string key exists in node_state dictionary
+        """
+        return type(node_state['variables'][variable_as_string]).__name__ != 'int'
+
+    def get_concrete_value_of_variable_as_string(self, variable, node_state, z3_solutions):
+        if self.variable_is_symbolic(variable, node_state):
+            return str(z3_solutions[node_state['variables'][variable]])
+        else:
+            return str(node_state['variables'][variable])
+
     def print_solutions(self, z3_solutions, node_state):
         solution = ""
         for variable in node_state['variables']:
             if solution == "":
-                solution = str(variable) + " = " + str(z3_solutions[node_state['variables'][variable]])
+                solution = str(variable) + " = " + \
+                           self.get_concrete_value_of_variable_as_string(variable, node_state, z3_solutions)
             else:
-                solution = solution + ", " + str(variable) + " = " + str(z3_solutions[node_state['variables'][variable]])
+                solution = solution + ", " + str(variable) + " = " + \
+                           self.get_concrete_value_of_variable_as_string(variable, node_state, z3_solutions)
 
 
         print solution

@@ -130,8 +130,20 @@ if var1 > var2:
     print 'foo'
 print 'end'
 """
+
+test_code11 = """
+var1 = 1
+var2 = 2
+if var1 > var2:
+    print 'foo'
+    var2 = 4
+    if var1 > var2:
+        print 'spam'
+print 'end'
+"""
+
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code10)
+abstract_syntax_tree = ast.parse(test_code11)
 
 #step2: build code_call_graph while symbolically executing
 source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree,
