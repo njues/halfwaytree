@@ -412,13 +412,22 @@ class SourceCodeDigraph:
             true_constraints, false_constraints, unmutated_constraints = \
                 self.extract_constraints_from_conditionals(ast_statement.test, node_state['variables'])
 
-            true_constraints    = node_state['constraints'] + true_constraints
-            false_constraints   = node_state['constraints'] + false_constraints
-            node_statement = self.get_node_statement_from_constraints(unmutated_constraints, node_state)
+            true_node_state     = dict(node_state)
+            false_node_state    = dict(node_state)
+            true_node_state['constraints']  = true_node_state['constraints']    + true_constraints
+            false_node_state['constraints'] = false_node_state['constraints']   + false_constraints
 
-            self.add_node_from_ast_statements_inside_if_statement_body(ast, list(ast_path), node_state,
+            node_statement = self.get_node_statement_from_constraints(unmutated_constraints, true_node_state)
+
+            self.add_node_from_ast_statements_inside_if_statement_body(ast, list(ast_path), true_node_state,
                                                                        node_id, node_children)
-            node_state['constraints'] = node_state['constraints'] + false_constraints
+
+            """
+                the following line makes the node_state equal to the false_node_state to
+                represent the branch of code executed if the if-statement conditions
+                were false.
+            """
+            node_state = false_node_state
 
         node_statement = self.modify_node_statement(node_statement, node_id)
 
