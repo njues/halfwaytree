@@ -44,7 +44,8 @@ print "done"
 """
 
 test_code3 = """
-
+var1=23
+t=3
 if var1 >= -30 and var1 <= 3000 and t==4:
     print "okay1"
     print "okay2"
@@ -54,6 +55,7 @@ print "done"
 """
 
 test_code4 = """
+var1=2
 if var1 == 30:
     print "okay1"
 print "done"
@@ -143,7 +145,7 @@ print 'end'
 """
 
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code11)
+abstract_syntax_tree = ast.parse(test_code4)
 
 #step2: build code_call_graph while symbolically executing
 source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree,

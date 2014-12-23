@@ -1,12 +1,12 @@
 #-------------------------------------------------------------------------------
-# Name:        digraph
-# Purpose:
+# Name:         digraph
+# Purpose:      Symbolic execution for Python applications
 #
-# Author:      HDizzle
-#
-# Created:     06/Sept/2014
-# Copyright:   (c) HDizzle 2014
-# Licence:     MIT
+# Author:       HDizzle
+# url:          https://github.com/sudouser2010/halfwaytree
+# Created:      06/Sept/2014
+# Copyright:    (c) HDizzle 2014
+# License:      MIT
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
 
@@ -252,7 +252,8 @@ class SourceCodeDigraph:
 
         return number_of_statements_in_ast_body > index_of_ast_statement+1
 
-    def there_is_an_ast_statement_below_in_different_body(self, ast_path, ast):
+
+    def there_is_an_ast_statement_below_in_body_directly_above(self, ast_path, ast):
         """
             this code assumes the ast path refers to an ast statement
         """
@@ -276,6 +277,24 @@ class SourceCodeDigraph:
                 otherwise, there is no ast_body above this one, return false
             """
             return False
+
+    def remove_last_two_items_in_list_by_reference(self, local_list):
+        for x in range(0, 2):
+            del local_list[-1]
+
+    def there_is_an_ast_statement_below_in_any_ast_body_above(self, ast_path, ast):
+        ast_body_exists = False
+        while len(ast_path)>2 and not ast_body_exists:
+            """
+                stop loop when the ast_path len is < 2
+                or when ast_body_exists is true
+            """
+            if self.there_is_an_ast_statement_below_in_body_directly_above(ast_path, ast):
+                ast_body_exists = True
+
+            self.remove_last_two_items_in_list_by_reference(ast_path)
+
+        return ast_body_exists
 
     def add_node_from_ast_statements_inside_if_statement_body(self, ast=None, ast_path=None, node_state=None,
                                                         node_id=None, node_children=None):
@@ -325,9 +344,26 @@ class SourceCodeDigraph:
 
         return solution
 
+
+    def is_statement_on_root_body(self, ast_path):
+        return len(ast_path) == 1
+
+    def is_statement_the_last(self, ast_path, ast):
+
+        if self.is_statement_on_root_body(ast_path) and \
+                not self.there_is_an_ast_statement_below_in_same_body(ast_path, ast):
+            return True
+
+        elif not self.there_is_an_ast_statement_below_in_any_ast_body_above(ast_path, ast):
+            return True
+
+        else:
+            return False
+
+
     def calculate_concrete_variables_on_last_statement(self, node_state, ast_path, ast, node_statement):
 
-        if not self.there_is_an_ast_statement_below_in_same_body(ast_path, ast):
+        if self.is_statement_the_last(ast_path, ast):
             #if this ast body has no statement below
 
             if len(ast_path)==1:
@@ -344,10 +380,10 @@ class SourceCodeDigraph:
 
                 node_statement += "\n[font color='red']{0}[/font]".format(string_solutions)
 
-
         return node_statement
 
-    def add_node_from_ast_statements_below_in_different_body(self, ast=None, ast_path=None, node_state=None,
+
+    def add_node_from_ast_statements_below_in_any_ast_body_above(self, ast=None, ast_path=None, node_state=None,
                                                         node_id=None, node_children=None):
 
         if self.there_is_an_ast_statement_below_in_same_body(ast_path, ast):
@@ -356,17 +392,7 @@ class SourceCodeDigraph:
             """
             return
 
-        use_ast_path = False
-        while len(ast_path)>2 and not use_ast_path:
-            """
-                stop loop when the ast_path len is < 2
-                or when use_ast_path is true
-            """
-            if self.there_is_an_ast_statement_below_in_different_body(ast_path, ast):
-                use_ast_path = True
-            ast_path = ast_path[0:-2]
-
-        if use_ast_path:
+        if self.there_is_an_ast_statement_below_in_any_ast_body_above(ast_path, ast):
             #increment last index in path, to go to the next statement
             ast_path[-1] += 1
             node_children.append(
@@ -470,7 +496,7 @@ class SourceCodeDigraph:
 
         self.add_node_from_ast_statements_below_in_same_body(ast, list(ast_path), node_state, node_id, node_children)
 
-        self.add_node_from_ast_statements_below_in_different_body(ast, list(ast_path), node_state, node_id, node_children)
+        self.add_node_from_ast_statements_below_in_any_ast_body_above(ast, list(ast_path), node_state, node_id, node_children)
 
 
 
