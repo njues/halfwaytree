@@ -350,15 +350,14 @@ class SourceCodeDigraph:
 
     def is_statement_the_last(self, ast_path, ast):
 
-        if self.is_statement_on_root_body(ast_path) and \
-                not self.there_is_an_ast_statement_below_in_same_body(ast_path, ast):
-            return True
-
-        elif not self.there_is_an_ast_statement_below_in_any_ast_body_above(ast_path, ast):
-            return True
-
-        else:
+        if self.is_statement_on_root_body(ast_path):
+            if not self.there_is_an_ast_statement_below_in_same_body(ast_path, ast):
+                return True
             return False
+
+        if not self.there_is_an_ast_statement_below_in_any_ast_body_above(ast_path, ast):
+            return True
+        return False
 
 
     def calculate_concrete_variables_on_last_statement(self, node_state, ast_path, ast, node_statement):
