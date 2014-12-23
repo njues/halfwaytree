@@ -424,12 +424,25 @@ class SourceCodeDigraph:
     def build_true_and_false_node_states_from_constraints(self, node_state,
                                                                          true_constraints,
                                                                          false_constraints):
-        true_node_state     = dict(node_state)
-        false_node_state    = dict(node_state)
+        true_node_state     = self.get_copy_of_node_state(node_state)
+        false_node_state    = self.get_copy_of_node_state(node_state)
         true_node_state['constraints']  = true_node_state['constraints']    + true_constraints
         false_node_state['constraints'] = false_node_state['constraints']   + false_constraints
 
         return true_node_state, false_node_state
+
+    def get_copy_of_node_state(self, node_state):
+        node_state_copy = {'variables':{}, 'constraints':[]}
+
+        #get copy of node_state variables
+        for key, value in node_state['variables'].iteritems():
+            node_state_copy['variables'][key] = value
+
+        #get copy of node_state constraints
+        for value in node_state['constraints']:
+            node_state_copy['constraints'].append(value)
+
+        return node_state_copy
 
 
     def return_node_and_all_its_children(self, ast=None, ast_path=None,
@@ -444,7 +457,7 @@ class SourceCodeDigraph:
         """
         if ast_path == None:
             ast_path    = [0]
-            node_state  = {'constraints':[], 'variables':{}}
+            node_state  = {'constraints':[], 'variables':[]}
         ast_statement    = self.get_ast_statement_from_path(ast_path, ast)
 
         #-------------------------initialize stuff for digraph node

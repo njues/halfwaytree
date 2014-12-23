@@ -1,12 +1,12 @@
 #-------------------------------------------------------------------------------
-# Name:        symbolic-executor
-# Purpose:
+# Name:         digraph
+# Purpose:      Symbolic execution for Python applications
 #
-# Author:      HDizzle
-#
-# Created:     06/Sept/2014
-# Copyright:   (c) HDizzle 2014
-# Licence:     MIT
+# Author:       HDizzle
+# url:          https://github.com/sudouser2010/halfwaytree
+# Created:      06/Sept/2014
+# Copyright:    (c) HDizzle 2014
+# License:      MIT
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
 
@@ -144,8 +144,14 @@ if var1 > var2:
 print 'end'
 """
 
+test_code12 = """
+var1=2
+if var1 == 30:
+    var1=30
+print "done"
+"""
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code4)
+abstract_syntax_tree = ast.parse(test_code12)
 
 #step2: build code_call_graph while symbolically executing
 source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree,
