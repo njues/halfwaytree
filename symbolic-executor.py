@@ -27,41 +27,17 @@ if t < 5:
     print "error"
 
 print "done"
-
 """
+
 
 test_code2 = """
-t       =4
-var1    =10
-var2    =9
-if var1 >= -30 and var1 <= 3000 and var1 > var2 and t==3 and t>5:
-    print "okay1"
-    print "okay2"
-    print "okay3"
-
-
-print "done"
-"""
-
-test_code3 = """
-var1=23
-t=3
-if var1 >= -30 and var1 <= 3000 and t==4:
-    print "okay1"
-    print "okay2"
-    print "okay3"
-
-print "done"
-"""
-
-test_code4 = """
 var1=2
 if var1 == 30:
     print "okay1"
 print "done"
 """
 
-test_code5 = """
+test_code3 = """
 t       =4
 var1    =10
 var2    =9
@@ -79,21 +55,21 @@ if var1 > var2:
 print "done"
 """
 
-test_code6 = """
+test_code4 = """
 var1 = 50
 b=2
 p=4
-if var1 != 30-p/b:
+if var1 != 30-p+b:
     var2=(7-9*var1)/var1
     print "okay1"
 print "done"
 """
 
-test_code7 = """
+test_code5 = """
 var1 = 2
 var2 = -3
 var1 = 2+var2
-if var1>var2 and var1>0 and var2>-8:
+if var1>var2:
     var1 = var1-2
     if var1 >0:
         print "okay"
@@ -105,7 +81,7 @@ if var1>var2 and var1>0 and var2>-8:
 print 'end'
 """
 
-test_code8 = """
+test_code6 = """
 var1 = 0
 var2 = 0
 var3 = 0
@@ -114,7 +90,7 @@ if var1==0:
 print 'end'
 """
 
-test_code9 = """
+test_code7 = """
 var1 = 0
 var2 = 0
 if var1 == 0:
@@ -125,7 +101,7 @@ if var1 == 0:
 print 'end'
 """
 
-test_code10 = """
+test_code8 = """
 var1 = 1
 var2 = 2
 if var1 > var2:
@@ -133,7 +109,7 @@ if var1 > var2:
 print 'end'
 """
 
-test_code11 = """
+test_code9 = """
 var1 = 1
 var2 = 2
 if var1 > var2:
@@ -144,21 +120,30 @@ if var1 > var2:
 print 'end'
 """
 
-test_code12 = """
+test_code10 = """
 var1=2
 if var1 == 30:
     var1=30
 print "done"
 """
 
-test_code13 = """
+test_code11 = """
 var1=2
 if var1 > 34:
     var1=30
 print "done"
 """
+
+test_code12 = """
+var1=23
+if var1 > 30:
+    if var1 < 300:
+        print "okay1"
+
+print "done"
+"""
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code13)
+abstract_syntax_tree = ast.parse(test_code12)
 
 #step2: build code_call_graph while symbolically executing
 source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree,
