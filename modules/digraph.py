@@ -424,8 +424,9 @@ class SourceCodeDigraph:
     def build_true_and_false_node_states_from_constraints(self, node_state,
                                                                          true_constraints,
                                                                          false_constraints):
-        true_node_state     = self.get_copy_of_node_state(node_state)
-        false_node_state    = self.get_copy_of_node_state(node_state)
+
+        true_node_state     = self.get_copy_of_node_state(node_state) #copy by value
+        false_node_state    = node_state    #copy by reference
         true_node_state['constraints']  = true_node_state['constraints']    + true_constraints
         false_node_state['constraints'] = false_node_state['constraints']   + false_constraints
 
@@ -457,7 +458,7 @@ class SourceCodeDigraph:
         """
         if ast_path == None:
             ast_path    = [0]
-            node_state  = {'constraints':[], 'variables':[]}
+            node_state  = {'constraints':[], 'variables':{}}
         ast_statement    = self.get_ast_statement_from_path(ast_path, ast)
 
         #-------------------------initialize stuff for digraph node

@@ -150,8 +150,16 @@ if var1 == 30:
     var1=30
 print "done"
 """
+
+test_code13 = """
+var1=2
+if var1 > 34:
+    var1=30
+
+print "done"
+"""
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code12)
+abstract_syntax_tree = ast.parse(test_code13)
 
 #step2: build code_call_graph while symbolically executing
 source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree,
