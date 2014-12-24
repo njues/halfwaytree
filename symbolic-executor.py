@@ -155,7 +155,6 @@ test_code13 = """
 var1=2
 if var1 > 34:
     var1=30
-
 print "done"
 """
 #step1: get abstract syntax tree
