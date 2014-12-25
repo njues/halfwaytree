@@ -131,6 +131,9 @@ class SourceCodeDigraph:
             true_constraints.append(condition)
             false_constraints.append(z3.Not(condition))
 
+        if false_constraints != []:
+            false_constraints = [z3.Or(false_constraints)]
+
         return true_constraints, false_constraints, unmutated_constraints
 
     def flatten_constraints(self, constraints):

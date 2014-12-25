@@ -142,8 +142,56 @@ if var1 > 30:
 
 print "done"
 """
+
+test_code13 = """
+var1=23
+if var1 > 30 and var1 < 300:
+    print "okay1"
+
+print "done"
+"""
+
+test_code13 = """
+var1=23
+t=4
+if var1 > 30 and var1 < 300 and t==4:
+    print "okay1"
+
+print "done"
+"""
+
+test_code14 = """
+var1 = 2
+var2 = -3
+var1 = 2+var2
+if var1>var2 and var1>0 and var2>-8:
+    var1 = var1-2
+    if var1 >0:
+        print "okay"
+print 'g'
+"""
+
+test_code15 = """
+var1=23
+t=3
+if var1 >= -30 and var1 <= 3000 and t==4:
+    print "okay1"
+    print "okay2"
+    print "okay3"
+
+print "done"
+"""
+
+test_code16 = """
+var1=2
+if var1 > 34:
+    var1=30
+"""
+test_code16 += """
+print #dummy statement only used for showing end of program
+"""
 #step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code12)
+abstract_syntax_tree = ast.parse(test_code16)
 
 #step2: build code_call_graph while symbolically executing
 source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree,
