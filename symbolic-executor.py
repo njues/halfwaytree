@@ -187,7 +187,7 @@ if var1 > 34:
 """
 
 #step1: get ast from source code
-source_code_digraph = digraph.SourceCodeDigraph(source_code=test_code1,
+source_code_digraph = digraph.SourceCodeDigraph(source_code=test_code7,
                                                 show_node_id=True,
                                                 create_visual=True,
                                                 show_unmutated_constraints=True

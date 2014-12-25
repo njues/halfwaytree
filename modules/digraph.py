@@ -66,12 +66,22 @@ class SourceCodeDigraph:
             source_code = self.append_end_statement_to_source_code(source_code)
         return ast.parse(source_code)
 
-    def add_node_to_visual_digraph(self, node_statement, node_id, node_type):
+    def add_node_to_visual_digraph(self, node_statement, node_id, node_type, is_last_statement):
         """
             param node_statement: string
             param node_id: int
             param node_type: string
         """
+        style="rounded"
+        if node_type == "If":
+            shape = 'diamond'
+        elif node_type in ["Assign", "Print"]:
+            shape = 'oval'
+
+            if is_last_statement:
+                shape='box'
+                style="filled,rounded"
+
         try:
             """
                 if node already exists. This may occur because the children of this node
@@ -79,10 +89,10 @@ class SourceCodeDigraph:
                 before this point
             """
             self.visual_digraph.get_node(node_id).attr.update(label=node_statement,
-                                                              shape='box')
+                                                              shape=shape, style=style)
         except:
             #if node does not exist, then add it
-            self.visual_digraph.add_node(node_id, label=node_statement)
+            self.visual_digraph.add_node(node_id, label=node_statement, shape=shape, style=style)
 
 
     def connect_node_to_parent_node_on_visual_digraph(self, node_id, parent_node_id):
@@ -220,11 +230,12 @@ class SourceCodeDigraph:
 
         return local_ast
 
-    def create_node_on_digraph(self, node_statement, node_id, parent_node_id, node_type):
+    def create_node_on_digraph(self, node_statement, node_id,
+                               parent_node_id, node_type, is_last_statement):
         #---------------------------------create node if needed
         if self.create_visual:
             #add node to visual digraph
-            self.add_node_to_visual_digraph(node_statement, node_id, node_type)
+            self.add_node_to_visual_digraph(node_statement, node_id, node_type, is_last_statement)
 
             if node_id > 0:
                 #connect node to a parent digraph
@@ -512,7 +523,7 @@ class SourceCodeDigraph:
 
         node_statement = self.modify_node_statement(node_statement, node_id, is_last_statement)
 
-        self.create_node_on_digraph(node_statement, node_id, parent_node_id, node_type)
+        self.create_node_on_digraph(node_statement, node_id, parent_node_id, node_type, is_last_statement)
 
         self.add_node_from_ast_statements_below_in_same_body(ast, list(ast_path), node_state, node_id, node_children)
 
