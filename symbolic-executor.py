@@ -178,8 +178,6 @@ if var1 >= -30 and var1 <= 3000 and t==4:
     print "okay1"
     print "okay2"
     print "okay3"
-
-print "done"
 """
 
 test_code16 = """
@@ -187,19 +185,16 @@ var1=2
 if var1 > 34:
     var1=30
 """
-test_code16 += """
-print #dummy statement only used for showing end of program
-"""
-#step1: get abstract syntax tree
-abstract_syntax_tree = ast.parse(test_code16)
 
-#step2: build code_call_graph while symbolically executing
-source_code_digraph = digraph.SourceCodeDigraph(abstract_syntax_tree,
+#step1: get ast from source code
+source_code_digraph = digraph.SourceCodeDigraph(source_code=test_code1,
                                                 show_node_id=True,
                                                 create_visual=True,
                                                 show_unmutated_constraints=True
                                                 )
+#step2: build code_call_graph while symbolically executing
 source_code_digraph.build_code_digraph()
+
 #source_code_digraph.visual_digraph.draw('image.ps', prog='dot')
 source_code_digraph.visual_digraph.draw('image.png', prog='dot')
 

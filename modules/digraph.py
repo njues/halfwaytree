@@ -32,23 +32,39 @@ class Node:
         self.node_id        = node_id
 
 
-
 class SourceCodeDigraph:
     """
         This is a directed graph of the source code
     """
 
-    def __init__(self, abstract_syntax_tree, create_visual=True, show_unmutated_constraints=True,
+    def __init__(self, source_code, create_visual=True, show_unmutated_constraints=True,
                  show_node_id=True, use_html_like_label=True):
         """
             param abstract_syntax_tree: an ast object
         """
-        self.abstract_syntax_tree       = abstract_syntax_tree
+
         self.node_count                 = 0
         self.create_visual              = create_visual
         self.show_unmutated_constraints = show_unmutated_constraints
         self.show_node_id               = show_node_id
         self.use_html_like_label        = use_html_like_label
+        self.abstract_syntax_tree       = self.make_ast(source_code)
+
+
+    def append_end_statement_to_source_code(self, source_code):
+        """
+            this is added so every code that is symbolically executed
+            will graphically show a node that represents the end. Otherwise,
+            the visual directed graph looks strange when the last executed
+            statement on the root path is an if-statement.
+        """
+        source_code+= "print"
+        return source_code
+
+    def make_ast(self, source_code):
+        if self.create_visual:
+            source_code = self.append_end_statement_to_source_code(source_code)
+        return ast.parse(source_code)
 
     def add_node_to_visual_digraph(self, node_statement, node_id, node_type):
         """
@@ -80,8 +96,6 @@ class SourceCodeDigraph:
         self.place_symbolic_variables_into_local_scope(node_variables, locals())
         exec("local_condition ={0}".format(condition))
         return  local_condition
-
-
 
 
     def extract_constraints_from_conditionals(self, conditions, node_variables):
@@ -322,7 +336,7 @@ class SourceCodeDigraph:
                 solution = str(variable) + " = " + \
                            self.get_concrete_value_of_variable_as_string(variable, node_state, z3_solutions)
             else:
-                solution = solution + ", " + str(variable) + " = " + \
+                solution = solution + ",\n" + str(variable) + " = " + \
                            self.get_concrete_value_of_variable_as_string(variable, node_state, z3_solutions)
 
 
@@ -346,8 +360,13 @@ class SourceCodeDigraph:
 
     def calculate_concrete_variables_on_last_statement(self, node_state, ast_path, ast, node_statement):
 
+        is_last_statement = False
         if self.is_statement_the_last(ast_path, ast):
             #if this ast body has no statement below
+
+            #remove print statement on last statement on path
+            node_statement = ""
+            is_last_statement = True
 
             if len(ast_path)==1:
                 #if this statement is on the root ast_body
@@ -361,9 +380,9 @@ class SourceCodeDigraph:
                 else:
                     string_solutions = "path unsatisfiable"
 
-                node_statement += "\n[font color='red']{0}[/font]".format(string_solutions)
+                node_statement += "[font color='red']{0}[/font]".format(string_solutions)
 
-        return node_statement
+        return node_statement, is_last_statement
 
 
     def add_node_from_ast_statements_below_in_any_ast_body_above(self, ast=None, ast_path=None, node_state=None,
@@ -391,9 +410,12 @@ class SourceCodeDigraph:
 
         return node_statement
 
-    def modify_node_statement(self, node_statement, node_id):
+    def modify_node_statement(self, node_statement, node_id, is_last_statement):
         if self.show_node_id:
             node_statement = "Node "+node_id.__str__() + ":\n" + node_statement
+
+        if is_last_statement:
+            node_statement = "Test Cases \n" + node_statement
 
         if self.use_html_like_label:
             node_statement = node_statement.replace('<','&lt;')
@@ -485,9 +507,10 @@ class SourceCodeDigraph:
 
 
 
-        node_statement = self.calculate_concrete_variables_on_last_statement(node_state, list(ast_path),
-                                                                             ast, node_statement)
-        node_statement = self.modify_node_statement(node_statement, node_id)
+        node_statement, is_last_statement = self.calculate_concrete_variables_on_last_statement(
+            node_state, list(ast_path), ast, node_statement)
+
+        node_statement = self.modify_node_statement(node_statement, node_id, is_last_statement)
 
         self.create_node_on_digraph(node_statement, node_id, parent_node_id, node_type)
 
