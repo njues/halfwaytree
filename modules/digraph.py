@@ -12,6 +12,7 @@
 
 import pygraphviz as pgv
 import modules.astor as astor
+import ast
 import z3
 
 class Node:
@@ -48,17 +49,6 @@ class SourceCodeDigraph:
         self.show_unmutated_constraints = show_unmutated_constraints
         self.show_node_id               = show_node_id
         self.use_html_like_label        = use_html_like_label
-
-    def index_exists(self, index, list):
-        """
-            param list: list
-            param index: int
-            this returns true if the list[index] exists
-        """
-
-        if len(list) > index:
-            return True
-        return False
 
     def add_node_to_visual_digraph(self, node_statement, node_id, node_type):
         """
