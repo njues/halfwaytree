@@ -50,6 +50,8 @@ class SourceCodeDigraph:
         self.use_html_like_label        = use_html_like_label
         self.abstract_syntax_tree       = self.make_ast(source_code)
 
+        self.edge_color         = "red"
+        self.constraint_color   = "red"
 
     def append_end_statement_to_source_code(self, source_code):
         """
@@ -100,7 +102,8 @@ class SourceCodeDigraph:
             param node_id: int
             param prent_node_id: int
         """
-        self.visual_digraph.add_edge(parent_node_id, node_id)
+        arrowhead=""
+        self.visual_digraph.add_edge(parent_node_id, node_id, color=self.edge_color, arrowhead=arrowhead)
 
     def make_condition_symbolic(self, condition, node_variables):
         self.place_symbolic_variables_into_local_scope(node_variables, locals())
@@ -391,7 +394,7 @@ class SourceCodeDigraph:
                 else:
                     string_solutions = "path unsatisfiable"
 
-                node_statement += "[font color='red']{0}[/font]".format(string_solutions)
+                node_statement += "[font color='{0}']{1}[/font]".format(self.constraint_color, string_solutions)
 
         return node_statement, is_last_statement
 
