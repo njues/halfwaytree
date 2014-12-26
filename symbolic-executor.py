@@ -15,17 +15,22 @@ import modules.digraph as digraph
 from test_source_codes import source_codes
 
 
-#step1: get ast from source code
-source_code_digraph = digraph.SourceCodeDigraph(source_code=source_codes[0],
-                                                show_node_id=True,
-                                                create_visual=True,
-                                                show_unmutated_constraints=True
-                                                )
-#step2: build code_call_graph while symbolically executing
-source_code_digraph.build_code_digraph()
+increment = 0
+for source_code in source_codes:
 
-#source_code_digraph.visual_digraph.draw('image.ps', prog='dot')
-source_code_digraph.visual_digraph.draw('image.png', prog='dot')
+    #step1: get ast from source code
+    source_code_digraph = digraph.SourceCodeDigraph(source_code=source_code,
+                                                    show_node_id=True,
+                                                    create_visual=True,
+                                                    show_unmutated_constraints=True
+                                                    )
 
+    #step2: build code_call_graph while symbolically executing
+    source_code_digraph.build_code_digraph()
 
+    #draw the digraph
+    output_digraph_test_image = "source-code-tests-images/source_code{0}.png".format(increment)
+    source_code_digraph.visual_digraph.draw(output_digraph_test_image, prog='dot')
+
+    increment += 1
 
