@@ -52,6 +52,7 @@ class SourceCodeDigraph:
 
         self.edge_color         = "red"
         self.constraint_color   = "red"
+        self.arrow_head         = "normal"
 
     def append_end_statement_to_source_code(self, source_code):
         """
@@ -102,8 +103,8 @@ class SourceCodeDigraph:
             param node_id: int
             param prent_node_id: int
         """
-        arrowhead=""
-        self.visual_digraph.add_edge(parent_node_id, node_id, color=self.edge_color, arrowhead=arrowhead)
+
+        self.visual_digraph.add_edge(parent_node_id, node_id, color=self.edge_color, arrowhead=self.arrow_head)
 
     def make_condition_symbolic(self, condition, node_variables):
         self.place_symbolic_variables_into_local_scope(node_variables, locals())
@@ -196,7 +197,7 @@ class SourceCodeDigraph:
             symbolic_variable_scope[key] = local_scope[key]
 
 
-    def update_node_variable_state(self, node, variables):
+    def update_node_variable_state(self, node, variables, node_statement):
 
         if hasattr(node.value, 'n') and \
             self.variable_is_type(node.value.n, "int"):
@@ -214,14 +215,17 @@ class SourceCodeDigraph:
             else:
                 """
                     if this variable is not in scope,it's being defined for the first time.
-                    So make it symbolic
+                    So make it symbolic. Also make the node_statement show as var=symbolic
                 """
                 variables[node.targets[0].id] = z3.Int(node.targets[0].id)
+                node_statement = "{0} = symbolic".format(node.targets[0].id)
         else:
             statement = astor.to_source(node)
             self.place_symbolic_variables_into_local_scope(variables, locals())
             exec(statement) #symbolic execution occurs here
             self.place_local_variables_into_symbolic_scope(variables, locals())
+
+        return node_statement
 
     def get_ast_statement_from_path(self, ast_path, ast):
         local_ast = ast
@@ -491,7 +495,11 @@ class SourceCodeDigraph:
 
         if      node_type == "Assign":
             node_statement = astor.to_source(ast_statement)
-            self.update_node_variable_state(ast_statement, node_state['variables'])
+            node_statement = self.update_node_variable_state(ast_statement, node_state['variables'], node_statement)
+
+            #if ast_statement.targets[0].id in node_state['variables']:
+            #   node_statement = str(ast_statement.targets[0].id) + " = symbolic"
+
         elif    node_type == "Print":
             node_statement = astor.to_source(ast_statement)
         elif    node_type == "If":
