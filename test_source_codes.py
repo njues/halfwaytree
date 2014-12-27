@@ -168,7 +168,37 @@ if var1 >= -30 and var1 <= 3000 and t==4:
 var1=2
 if var1 > 34:
     var1=30
+""",
+
 """
+x=0
+y=0
+z=2*y
+if z==x:
+    if x>y+10:
+        print "ERROR !"
+""",
+
+"""
+x=0
+y=0
+z=2*y
+if x==100000:
+    if x<z:
+        print "ERROR !"
+""",
+
+"""
+x=0
+y=0
+if x>y:
+    x=x+y
+    y=x-y
+    x=x-y
+
+    if x-y >0:
+        print "ERROR !"
+""",
 
 ]
 

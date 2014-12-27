@@ -220,6 +220,13 @@ class SourceCodeDigraph:
                 variables[node.targets[0].id] = z3.Int(node.targets[0].id)
                 node_statement = "{0} = symbolic".format(node.targets[0].id)
         else:
+            if node.targets[0].id not in variables:
+                """
+                    place variable in scope. This is needed when a variable is being defined
+                    for the first time and set equal to other vairbales
+                """
+                variables[node.targets[0].id] = z3.Int(node.targets[0].id)
+
             statement = astor.to_source(node)
             self.place_symbolic_variables_into_local_scope(variables, locals())
             exec(statement) #symbolic execution occurs here
