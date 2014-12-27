@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Name:         symbolic-executor
+# Name:         Halfwaytree test case runner
 # Purpose:      Symbolic execution for Python applications
 #
 # Author:       HDizzle
@@ -10,6 +10,9 @@
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
 
+import sys
+#add the directory above so code can load modules
+sys.path.insert(1,'..')
 
 import modules.digraph as digraph
 from test_source_codes import source_codes
@@ -69,13 +72,14 @@ class HalfwaytreeTest(unittest.TestCase):
 
         print "Output location: {0}".format(output_digraph_test_image)
 
-#unittest.main()
+
 single_visual_test  = unittest.TestSuite()
 all_visual_tests    = unittest.TestSuite()
 
 single_visual_test.addTest(HalfwaytreeTest('make_visual_digraph_of_a_single_source_code'))
 all_visual_tests.addTest(HalfwaytreeTest('make_visual_digraph_of_all_sample_source_codes'))
 
-unittest.TextTestRunner().run(single_visual_test)
+
+#unittest.TextTestRunner().run(single_visual_test)
 #unittest.TextTestRunner().run(all_visual_tests)
 
