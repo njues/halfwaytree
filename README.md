@@ -7,9 +7,9 @@ Halfwaytree
     Symbolic execution is a method for automatically generating test 
     cases from a computer program. Some great introductory videos 
     on symbolic execution are below:
-[https://www.youtube.com/watch?v=CJccn9d2t5w](https://www.youtube.com/watch?v=CJccn9d2t5w)
+[Symbolic Execution Introductory video1](https://www.youtube.com/watch?v=CJccn9d2t5w)
 
-[https://www.youtube.com/watch?v=mffhPgsl8Ws](https://www.youtube.com/watch?v=mffhPgsl8Ws)
+[Symbolic Execution Introductory video2](https://www.youtube.com/watch?v=mffhPgsl8Ws)
 
 ###About Halfwaytree
     Right now, Halfwaytree is only in its infancy (phase two of development). 
@@ -45,5 +45,9 @@ source_code_digraph.build_code_digraph()
 #Step3, [optional] draw the digraph image
 source_code_digraph.visual_digraph.draw("example.png", prog='dot')
 ```
-###Generated Image Of Execution Tree For Example1:
+###Example1 Output:
 ![image generated with Halfwaytree](https://raw.githubusercontent.com/sudouser2010/halfwaytree/master/tests/source-code-tests-images/example1.png "image generated with Halfwaytree") 
+
+
+    From the output of example1 (above), you can see that 
+    the "inputs of death" for this program are x=22 and y=11.
