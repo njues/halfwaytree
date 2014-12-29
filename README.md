@@ -45,7 +45,7 @@ source_code_digraph.build_code_digraph()
 #Step3, [optional] draw the digraph image
 source_code_digraph.visual_digraph.draw("example.png", prog='dot')
 ```
-###Example1 Output:
+###Example Output:
 ![image generated with Halfwaytree](https://raw.githubusercontent.com/sudouser2010/halfwaytree/master/tests/source-code-tests-images/example1.png "image generated with Halfwaytree") 
 
 
