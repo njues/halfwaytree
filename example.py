@@ -8,7 +8,6 @@
 # Copyright:    (c) HDizzle 2014
 # License:      MIT
 #
-#See read me for current limitations of Halfwaytree (in docs folder)
 #See test folder for more examples
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
