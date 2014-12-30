@@ -51,3 +51,11 @@ source_code_digraph.visual_digraph.draw("example.png", prog='dot')
 
     From the output of example1 (above), you can see that 
     the "inputs of death" for this program are x=22 and y=11.
+
+###Current Limitations of Code:
+####source code analyzed has the following restrictions:
+    1. Statements must be one of the following:
+        * assignment, if, print
+    2. No if-else, or if-elif-else are permitted, only simple if statements
+        * for if statements, only compound "and" conditions are allowed   
+    2. Data type of variables must be integers
