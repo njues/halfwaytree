@@ -2,12 +2,15 @@ Installing Halfwaytree Dependencies
 ===========
 
 ###pygraphviz
-1. Run the following command:
+(1) Run the following command:
 ```
 sudo apt-get install -y graphviz libgraphviz-dev pkg-config python-pip
 sudo pip install pygraphviz
 ```
-
+(2) Test installation
+```
+import pygraphviz
+```
 
 ###z3
 (1) go to [http://z3.codeplex.com/SourceControl/list/changesets?branch=pure](http://z3.codeplex.com/SourceControl/list/changesets?branch=pure)
@@ -22,10 +25,9 @@ sudo pip install pygraphviz
  sudo make install
 ```
 
-(3) Test code
+(3) Test installation
 
-  * open up terminal and type the following:
 ```
- from z3 import *
+import z3
 ```
 
