@@ -10,11 +10,11 @@ sudo pip install pygraphviz
 
 
 ###z3
-1. go to [http://z3.codeplex.com/SourceControl/list/changesets?branch=pure](http://z3.codeplex.com/SourceControl/list/changesets?branch=pure)
+(1) go to [http://z3.codeplex.com/SourceControl/list/changesets?branch=pure](http://z3.codeplex.com/SourceControl/list/changesets?branch=pure)
 
   * make sure to download unstable, the master branch doesn't work
 
-2. cd into the z3 folder and run the following command:
+(2) cd into the z3 folder and run the following command:
 ```
  python scripts/mk_make.py
  cd build
@@ -22,10 +22,10 @@ sudo pip install pygraphviz
  sudo make install
 ```
 
-3. Test code
+(3) Test code
 
   * open up terminal and type the following:
 ```
-from z3 import *
+ from z3 import *
 ```
 
