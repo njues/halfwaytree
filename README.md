@@ -56,6 +56,5 @@ source_code_digraph.visual_digraph.draw("example.png", prog='dot')
 ####source code analyzed has the following restrictions:
     1. Statements must be one of the following:
         * assignment, if, print
-    2. No if-else, or if-elif-else are permitted, only simple if statements
-        * for if statements, only compound "and" conditions are allowed   
-    2. Data type of variables must be integers
+    2. If statement can only have a single conditional or multiple conditionals joined with 'and'
+    3. Data type of variables must be an integer
