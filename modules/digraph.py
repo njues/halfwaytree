@@ -378,7 +378,10 @@ class SourceCodeDigraph:
             else:
                 solution = solution + ",\n" + variable + " = " + variable_value
 
-        self.append_solution_to_test_cases(solution_dictionary)
+        if solution_dictionary == {}:
+            self.append_solution_to_test_cases(True)
+        else:
+            self.append_solution_to_test_cases(solution_dictionary)
         return solution
 
 
@@ -418,11 +421,15 @@ class SourceCodeDigraph:
                     string_solutions = self.get_solutions(s.model(), node_state)
 
                     if string_solutions == "":
-                        string_solutions = "any value"
+                        #this is what happens when any input works
+                        string_solutions = "any input"
+
+
                 else:
+                    #this is what happens when no input works
                     string_solutions = "path unsatisfiable"
-                    #add empty dictionary to test_case array
-                    self.append_solution_to_test_cases({})
+                    #add False which means path is impossible
+                    self.append_solution_to_test_cases(False)
 
 
                 node_statement += "[font color='{0}']{1}[/font]".format(self.constraint_color, string_solutions)
