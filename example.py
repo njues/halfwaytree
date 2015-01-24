@@ -17,15 +17,9 @@ import modules.digraph as digraph
 
 example1 = """
 var1=2
+assert False
 if var1 == 30:
     print "okay1"
-"""
-
-example1 = """
-var1=2
-var1=3
-if var1 == 3:
-    print "un reachable"
 """
 
 example2 = """
@@ -46,4 +40,4 @@ source_code_digraph.build_code_digraph()
 #Step3, [optional] draw the digraph image
 source_code_digraph.visual_digraph.draw("example.png", prog='dot')
 
-print source_code_digraph.test_cases
+#print source_code_digraph.test_cases

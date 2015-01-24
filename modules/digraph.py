@@ -80,7 +80,7 @@ class SourceCodeDigraph:
         style="rounded"
         if node_type == "If":
             shape = 'diamond'
-        elif node_type in ["Assign", "Print"]:
+        elif node_type in ["Assign", "Print", "Assert"]:
             shape = 'oval'
 
             if is_last_statement:
@@ -528,8 +528,10 @@ class SourceCodeDigraph:
         #-------------------------initialize stuff for digraph node
 
         if      node_type == "Assert":
-            pass
-        if      node_type == "Assign":
+            #code assumes assert is for Assert False
+            node_statement = "Assert False"
+
+        elif      node_type == "Assign":
             node_statement = astor.to_source(ast_statement)
             node_statement = self.update_node_variable_state(ast_statement, node_state['variables'], node_statement)
 
