@@ -21,6 +21,11 @@ if var1 == 30:
     print "okay1"
 """
 
+example1 = """
+var1=2
+var1=2
+"""
+
 example2 = """
 x=0
 y=0

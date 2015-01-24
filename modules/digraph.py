@@ -416,6 +416,9 @@ class SourceCodeDigraph:
                 if is_satisfied.r == 1:
                     #if path conditions are satisfiable
                     string_solutions = self.get_solutions(s.model(), node_state)
+
+                    if string_solutions == "":
+                        string_solutions = "any value"
                 else:
                     string_solutions = "path unsatisfiable"
                     #add empty dictionary to test_case array
