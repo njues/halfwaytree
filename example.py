@@ -39,4 +39,4 @@ source_code_digraph.build_code_digraph()
 #Step3, [optional] draw the digraph image
 source_code_digraph.visual_digraph.draw("example.png", prog='dot')
 
-
+#print source_code_digraph.test_cases

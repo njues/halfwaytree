@@ -4,3 +4,4 @@
 .gitignore
 *.pyc
 example.png
+idea/

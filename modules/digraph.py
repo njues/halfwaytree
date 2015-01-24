@@ -54,6 +54,8 @@ class SourceCodeDigraph:
         self.constraint_color   = "red"
         self.arrow_head         = "normal"
 
+        self.test_cases         = []
+
     def append_end_statement_to_source_code(self, source_code):
         """
             this is added so every code that is symbolically executed
@@ -353,18 +355,30 @@ class SourceCodeDigraph:
     def get_concrete_value_of_variable_as_string(self, variable, node_state, z3_solutions):
         return str(z3_solutions[variable])
 
+    def append_solution_to_test_cases(self, solution_dictionary):
+        self.test_cases.append(solution_dictionary)
 
     def get_solutions(self, z3_solutions, node_state):
+        """
+            code gets solutions for statement
+            and appends it to test_cases
+        """
+
         solution = ""
+        solution_dictionary = {}
+
         for variable in z3_solutions:
+
+            variable_value = self.get_concrete_value_of_variable_as_string(variable, node_state, z3_solutions)
+            variable = str(variable)
+            solution_dictionary[variable] = variable_value
+
             if solution == "":
-                solution = str(variable) + " = " + \
-                           self.get_concrete_value_of_variable_as_string(variable, node_state, z3_solutions)
+                solution = variable + " = " + variable_value
             else:
-                solution = solution + ",\n" + str(variable) + " = " + \
-                           self.get_concrete_value_of_variable_as_string(variable, node_state, z3_solutions)
+                solution = solution + ",\n" + variable + " = " + variable_value
 
-
+        self.append_solution_to_test_cases(solution_dictionary)
         return solution
 
 
@@ -404,6 +418,9 @@ class SourceCodeDigraph:
                     string_solutions = self.get_solutions(s.model(), node_state)
                 else:
                     string_solutions = "path unsatisfiable"
+                    #add empty dictionary to test_case array
+                    self.append_solution_to_test_cases({})
+
 
                 node_statement += "[font color='{0}']{1}[/font]".format(self.constraint_color, string_solutions)
 
@@ -500,6 +517,8 @@ class SourceCodeDigraph:
         self.node_count += 1
         #-------------------------initialize stuff for digraph node
 
+        if      node_type == "Assert":
+            pass
         if      node_type == "Assign":
             node_statement = astor.to_source(ast_statement)
             node_statement = self.update_node_variable_state(ast_statement, node_state['variables'], node_statement)
