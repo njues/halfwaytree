@@ -32,6 +32,14 @@ class Node:
         self.node_id        = node_id
 
 
+        """
+            if node is a child or an error, then it is not drawn be default.
+            And symbolic execution engine will fast forward to the end of that
+            path so it can show the value of variables.
+        """
+        self.child_of_error = False
+
+
 class SourceCodeDigraph:
     """
         This is a directed graph of the source code
@@ -342,6 +350,19 @@ class SourceCodeDigraph:
         )
 
 
+    def get_number_of_root_statements(self):
+        return len(self.abstract_syntax_tree.body)
+
+    def add_last_node(self, ast=None, node_state=None, node_id=None, node_children=None):
+
+        root_statement_index = self.get_number_of_root_statements() -1
+        ast_path    = [root_statement_index]
+
+        node_children.append(
+            self.return_node_and_all_its_children(ast=ast, ast_path=ast_path, node_state=node_state,
+                                              parent_node_id=node_id )
+        )
+
     def add_node_from_ast_statements_below_in_same_body(self, ast=None, ast_path=None, node_state=None,
                                                         node_id=None, node_children=None):
         if self.there_is_an_ast_statement_below_in_same_body(ast_path, ast):
@@ -525,11 +546,13 @@ class SourceCodeDigraph:
         node_children       = []
         node_id             = self.node_count
         self.node_count += 1
+        error_present       = False
         #-------------------------initialize stuff for digraph node
 
         if      node_type == "Assert":
             #code assumes assert is for Assert False
-            node_statement = "Assert False"
+            node_statement  = "Assert False"
+            error_present   = True
 
         elif      node_type == "Assign":
             node_statement = astor.to_source(ast_statement)
@@ -574,9 +597,18 @@ class SourceCodeDigraph:
 
         self.create_node_on_digraph(node_statement, node_id, parent_node_id, node_type, is_last_statement)
 
-        self.add_node_from_ast_statements_below_in_same_body(ast, list(ast_path), node_state, node_id, node_children)
+        if error_present:
+            """
+                if error is present, jump to the last node and add it as a child.
+                Note, the last node is assumed to never have an error present
+                b/c it is the dummy node added by the symbolic execution engine
+                and used to show the value of the symbolic variables
+            """
+            self.add_last_node(ast, node_state=node_state, node_id=node_id, node_children=node_children)
+        else:
+            self.add_node_from_ast_statements_below_in_same_body(ast, list(ast_path), node_state, node_id, node_children)
 
-        self.add_node_from_ast_statements_below_in_any_ast_body_above(ast, list(ast_path), node_state, node_id, node_children)
+            self.add_node_from_ast_statements_below_in_any_ast_body_above(ast, list(ast_path), node_state, node_id, node_children)
 
 
 
