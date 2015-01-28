@@ -55,6 +55,6 @@ source_code_digraph.visual_digraph.draw("example.png", prog='dot')
 ###Current Limitations of Code:
 ####source code analyzed has the following restrictions:
     1. Statements must be one of the following:
-        * assignment, if, print, assert False
+        * assignment, if, print, or assert False
     2. If statement can only have a single conditional or multiple conditionals joined with 'and'
     3. Data type of variables must be an integer
