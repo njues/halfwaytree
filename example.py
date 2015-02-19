@@ -28,11 +28,17 @@ y=0
 z=2*y
 if z==x:
     if x>y+10:
-        print "ERROR !"
+        assert False
+"""
+
+example3 = """
+var1=0
+if var1 == 30 and var1 != 30:
+    print "this path is infeasible"
 """
 
 #Step1, initialize digraph object with source code
-source_code_digraph = digraph.SourceCodeDigraph(source_code=example1)
+source_code_digraph = digraph.SourceCodeDigraph(source_code=example3)
 
 #Step2, build digraph while symbolically executing: uses
 source_code_digraph.build_code_digraph()

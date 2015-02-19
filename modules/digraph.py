@@ -114,7 +114,14 @@ class SourceCodeDigraph:
             param prent_node_id: int
         """
 
-        self.visual_digraph.add_edge(parent_node_id, node_id, color=self.edge_color, arrowhead=self.arrow_head)
+        kwargs = {}
+        kwargs["color"]         = self.edge_color
+        kwargs["arrowhead"]     = self.arrow_head
+        kwargs["taillabel"]     = "Message"
+        kwargs["labeldistance"] = 2
+        kwargs["labelangle"]    = 0
+        kwargs["labelfontcolor"]= "Blue"
+        self.visual_digraph.add_edge(parent_node_id, node_id, **kwargs)
 
     def make_condition_symbolic(self, condition, node_variables):
         self.place_symbolic_variables_into_local_scope(node_variables, locals())
