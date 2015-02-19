@@ -108,19 +108,23 @@ class SourceCodeDigraph:
             self.visual_digraph.add_node(node_id, label=node_statement, shape=shape, style=style)
 
 
-    def connect_node_to_parent_node_on_visual_digraph(self, node_id, parent_node_id):
+    def connect_node_to_parent_node_on_visual_digraph(self, node_id, parent_node_id, edge_message=None):
         """
             param node_id: int
             param prent_node_id: int
         """
 
-        kwargs = {}
-        kwargs["color"]         = self.edge_color
-        kwargs["arrowhead"]     = self.arrow_head
-        kwargs["taillabel"]     = "Message"
-        kwargs["labeldistance"] = 2
-        kwargs["labelangle"]    = 0
-        kwargs["labelfontcolor"]= "Blue"
+        kwargs              = {}
+        kwargs["color"]     = self.edge_color
+        kwargs["arrowhead"] = self.arrow_head
+
+        if edge_message != None:
+            #add extra arguments when edge is present
+            kwargs["taillabel"]     = edge_message
+            kwargs["labeldistance"] = 2
+            kwargs["labelangle"]    = 0
+            kwargs["labelfontcolor"]= "Blue"
+
         self.visual_digraph.add_edge(parent_node_id, node_id, **kwargs)
 
     def make_condition_symbolic(self, condition, node_variables):
