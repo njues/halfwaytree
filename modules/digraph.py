@@ -46,7 +46,7 @@ class SourceCodeDigraph:
     """
 
     def __init__(self, source_code, create_visual=True, show_unmutated_constraints=True,
-                 show_node_id=True, use_html_like_label=True, only_show_feasible_paths=True):
+                 show_node_id=True, use_html_like_label=True, only_show_feasible_paths=False):
         """
             param abstract_syntax_tree: an ast object
         """
@@ -464,7 +464,9 @@ class SourceCodeDigraph:
                     #this is what happens when no input works
                     string_solutions = "path unsatisfiable"
                     #add False which means path is impossible
-                    self.append_solution_to_test_cases(False)
+
+                    if not self.only_show_feasible_paths:
+                        self.append_solution_to_test_cases(False)
 
 
                 node_statement += "[font color='{0}']{1}[/font]".format(self.constraint_color, string_solutions)
@@ -623,13 +625,21 @@ class SourceCodeDigraph:
         node_statement = self.modify_node_statement(node_statement, node_id, is_last_statement)
         edge_message_with_parent = node_state["type"]
 
-        if self.only_show_feasible_paths and (isfeasible or self.is_node_state_feasible(node_state)):
-            #only adds node when node_state is feasible
+        if self.only_show_feasible_paths:
+            if isfeasible or self.is_node_state_feasible(node_state):
+                #only adds node when node_state is feasible
+                self.create_node_on_digraph(node_statement,
+                                            node_id, parent_node_id,
+                                            node_type, is_last_statement,
+                                            edge_message_with_parent
+                )
+        else:
             self.create_node_on_digraph(node_statement,
                                         node_id, parent_node_id,
                                         node_type, is_last_statement,
                                         edge_message_with_parent
             )
+
 
         if node_type == "If":
             node_state['type']=False

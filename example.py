@@ -31,96 +31,9 @@ if z==x:
         assert False
 """
 
-example3 = """
-var1=0
-if var1 == 30 and var1 != 30:
-    print "this path is infeasible"
-"""
-
-example4 = """
-left=0
-right=0
-op=0
-result=0
-#----------------represents errors caused by input number memory restrictions
-if left > 1000:
-    print "Input can not be greater than 1000"
-    assert False
-if left < -1000:
-    print "Input can not be less than 1000"
-    assert False
-if right > 1000:
-    print "Input can not be greater than 1000"
-    assert False
-if right < -1000:
-    print "Input can not be less than 1000"
-    assert False
-#----------------represents errors caused by input number memory restrictions
-
-
-if op == 0:
-    #when op is +
-    result = left + right
-
-    #----------------represents error due to bad code
-    if result == 231:
-        assert False
-    #----------------represents error due to bad code
-
-if op == 1:
-    #when op is -
-    #----------------represents error due to bad code
-    if left == 45 and right == -342:
-        assert False
-    #----------------represents error due to bad code
-    result = left - right
-
-if op == 2:
-    #when op is *
-    #----------------represents error due to bad code
-    if left > 2*right - 34:
-        assert False
-    #----------------represents error due to bad code
-
-    result = left * right
-
-if op == 3:
-    #when op is /
-    #----------------represents error due to bad code
-    if right == 791:
-        assert False
-    #----------------represents error due to bad code
-
-    #-------------------represents errors caused by division by zero
-    if right == 0:
-        print "Error: Can not divide by zero"
-        assert False
-    #-------------------represents errors caused by division by zero
-
-    result = left / right
-
-if op == 4:
-    #---represents errors caused by operations not covered by calculator
-    print "Invalid Operation"
-    assert False
-    #---represents errors caused by operations not covered by calculator
-
-
-
-#----------------represents errors caused by output number memory restrictions
-if result > 1000:
-    print "Output can not be greater than 1000"
-    assert False
-if result < -1000:
-    print "Output can not be less than -1000"
-    assert False
-#----------------represents errors caused by output number memory restrictions
-
-"""
-
 
 #Step1, initialize digraph object with source code
-source_code_digraph = digraph.SourceCodeDigraph(source_code=example4)
+source_code_digraph = digraph.SourceCodeDigraph(source_code=example2)
 
 #Step2, build digraph while symbolically executing: uses
 source_code_digraph.build_code_digraph()
