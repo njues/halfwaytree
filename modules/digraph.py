@@ -46,7 +46,7 @@ class SourceCodeDigraph:
     """
 
     def __init__(self, source_code, create_visual=True, show_unmutated_constraints=True,
-                 show_node_id=True, use_html_like_label=True):
+                 show_node_id=True, use_html_like_label=True, only_show_feasible_paths=True):
         """
             param abstract_syntax_tree: an ast object
         """
@@ -57,6 +57,7 @@ class SourceCodeDigraph:
         self.show_node_id               = show_node_id
         self.use_html_like_label        = use_html_like_label
         self.abstract_syntax_tree       = self.make_ast(source_code)
+        self.only_show_feasible_paths   = only_show_feasible_paths
 
         self.edge_color         = "red"
         self.constraint_color   = "red"
@@ -435,7 +436,8 @@ class SourceCodeDigraph:
 
     def calculate_concrete_variables_on_last_statement(self, node_state, ast_path, ast, node_statement):
 
-        is_last_statement = False
+        is_last_statement   = False
+        isfeasible          = False
         if self.is_statement_the_last(ast_path, ast):
             #if this ast body has no statement below
 
@@ -452,11 +454,11 @@ class SourceCodeDigraph:
                 if is_satisfied.r == 1:
                     #if path conditions are satisfiable
                     string_solutions = self.get_solutions(s.model(), node_state)
+                    isfeasible = True
 
                     if string_solutions == "":
                         #this is what happens when any input works
                         string_solutions = "any input"
-
 
                 else:
                     #this is what happens when no input works
@@ -467,7 +469,7 @@ class SourceCodeDigraph:
 
                 node_statement += "[font color='{0}']{1}[/font]".format(self.constraint_color, string_solutions)
 
-        return node_statement, is_last_statement
+        return node_statement, is_last_statement, isfeasible
 
 
     def add_node_from_ast_statements_below_in_any_ast_body_above(self, ast=None, ast_path=None, node_state=None,
@@ -540,6 +542,15 @@ class SourceCodeDigraph:
         return node_state_copy
 
 
+    def is_node_state_feasible(self, node_state):
+        s = z3.Solver()
+        s.add(node_state['constraints'])
+        is_satisfied = s.check()
+
+        if is_satisfied.r == 1:
+            return True
+        return False
+
     def return_node_and_all_its_children(self, ast=None, ast_path=None,
                                           node_state=None, parent_node_id=None):
         """
@@ -606,17 +617,19 @@ class SourceCodeDigraph:
 
 
 
-        node_statement, is_last_statement = self.calculate_concrete_variables_on_last_statement(
+        node_statement, is_last_statement, isfeasible = self.calculate_concrete_variables_on_last_statement(
             node_state, list(ast_path), ast, node_statement)
 
         node_statement = self.modify_node_statement(node_statement, node_id, is_last_statement)
         edge_message_with_parent = node_state["type"]
 
-        self.create_node_on_digraph(node_statement,
-                                    node_id, parent_node_id,
-                                    node_type, is_last_statement,
-                                    edge_message_with_parent
-        )
+        if self.only_show_feasible_paths and (isfeasible or self.is_node_state_feasible(node_state)):
+            #only adds node when node_state is feasible
+            self.create_node_on_digraph(node_statement,
+                                        node_id, parent_node_id,
+                                        node_type, is_last_statement,
+                                        edge_message_with_parent
+            )
 
         if node_type == "If":
             node_state['type']=False
