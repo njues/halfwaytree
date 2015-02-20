@@ -33,7 +33,7 @@ y=0
 z=2*y
 if z==x:
     if x>y+10:
-        print "ERROR !"
+        assert False
 """
 
 #Step1, initialize digraph object with source code
