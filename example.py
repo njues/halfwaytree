@@ -35,10 +35,12 @@ example3 = """
 var1=0
 if var1 == 30 and var1 != 30:
     print "this path is infeasible"
+x=1
 """
 
+
 #Step1, initialize digraph object with source code
-source_code_digraph = digraph.SourceCodeDigraph(source_code=example3)
+source_code_digraph = digraph.SourceCodeDigraph(source_code=example2)
 
 #Step2, build digraph while symbolically executing: uses
 source_code_digraph.build_code_digraph()

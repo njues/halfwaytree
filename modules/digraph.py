@@ -265,8 +265,8 @@ class SourceCodeDigraph:
 
         return local_ast
 
-    def create_node_on_digraph(self, node_statement, node_id,
-                               parent_node_id, node_type, is_last_statement):
+    def create_node_on_digraph(self, node_statement, node_id,parent_node_id,
+                               node_type, is_last_statement, edge_message_with_parent):
         #---------------------------------create node if needed
         if self.create_visual:
             #add node to visual digraph
@@ -274,7 +274,8 @@ class SourceCodeDigraph:
 
             if node_id > 0:
                 #connect node to a parent digraph
-                self.connect_node_to_parent_node_on_visual_digraph(node_id, parent_node_id)
+                self.connect_node_to_parent_node_on_visual_digraph(node_id, parent_node_id,
+                                                                   edge_message_with_parent)
         #---------------------------------create node if needed
 
     def get_ast_body_that_ast_path_is_in(self, ast_path, ast):
@@ -520,6 +521,9 @@ class SourceCodeDigraph:
         true_node_state['constraints']  = true_node_state['constraints']    + true_constraints
         false_node_state['constraints'] = false_node_state['constraints']   + false_constraints
 
+        true_node_state['type'] = True
+        #false_node_state['type']= False
+
         return true_node_state, false_node_state
 
     def get_copy_of_node_state(self, node_state):
@@ -548,7 +552,7 @@ class SourceCodeDigraph:
         """
         if ast_path == None:
             ast_path    = [0]
-            node_state  = {'constraints':[], 'variables':{}}
+            node_state  = {'constraints':[], 'variables':{}, 'type': None}
         ast_statement    = self.get_ast_statement_from_path(ast_path, ast)
 
         #-------------------------initialize stuff for digraph node
@@ -597,7 +601,8 @@ class SourceCodeDigraph:
                 represent the branch of code executed if the if-statement conditions
                 were false.
             """
-            node_state = false_node_state
+
+
 
 
 
@@ -605,8 +610,18 @@ class SourceCodeDigraph:
             node_state, list(ast_path), ast, node_statement)
 
         node_statement = self.modify_node_statement(node_statement, node_id, is_last_statement)
+        edge_message_with_parent = node_state["type"]
 
-        self.create_node_on_digraph(node_statement, node_id, parent_node_id, node_type, is_last_statement)
+        self.create_node_on_digraph(node_statement,
+                                    node_id, parent_node_id,
+                                    node_type, is_last_statement,
+                                    edge_message_with_parent
+        )
+
+        if node_type == "If":
+            node_state['type']=False
+        else:
+            node_state['type']=None
 
         if error_present:
             """
