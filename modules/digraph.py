@@ -566,7 +566,7 @@ class SourceCodeDigraph:
 
         if      node_type == "Assert":
             #code assumes assert is for Assert False
-            node_statement  = "Assert False"
+            node_statement  = "Error !"
             error_present   = True
 
         elif      node_type == "Assign":
