@@ -642,16 +642,12 @@ class SourceCodeDigraph:
 
         node_statement, is_last_statement, isfeasible = self.calculate_concrete_variables_on_last_statement(
             node_state, list(ast_path), ast, node_statement)
-
         node_statement = self.modify_node_statement(node_statement, node_id, is_last_statement)
         edge_message_with_parent = node_state["type"]
-
-
         self.create_node_on_digraph_based_on_feasibility(isfeasible, node_id, parent_node_id,
                                                             node_type, is_last_statement,
                                                             edge_message_with_parent, node_statement
                                                         )
-
         self.update_node_type(node_type, node_state)
 
 
@@ -663,6 +659,12 @@ class SourceCodeDigraph:
                 and used to show the value of the symbolic variables
             """
             self.add_last_node(ast, node_state=node_state, node_id=node_id, node_children=node_children)
+        elif self.only_show_feasible_paths and not isfeasible:
+            """
+                if code is only supposed to show feasible paths and this node is not feasible,
+                don't process the children of the unfeasible node. (that would be a waste of resources)
+            """
+            pass
         else:
             self.add_node_from_ast_statements_below_in_same_body(ast, list(ast_path), node_state, node_id, node_children)
 
