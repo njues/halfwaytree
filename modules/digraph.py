@@ -437,7 +437,14 @@ class SourceCodeDigraph:
     def calculate_concrete_variables_on_last_statement(self, node_state, ast_path, ast, node_statement):
 
         is_last_statement   = False
-        isfeasible          = False
+        s = z3.Solver()
+        s.add(node_state['constraints'])
+
+        if s.check().r ==1:
+            isfeasible = True
+        else:
+            isfeasible = False
+
         if self.is_statement_the_last(ast_path, ast):
             #if this ast body has no statement below
 
@@ -447,14 +454,10 @@ class SourceCodeDigraph:
 
             if len(ast_path)==1:
                 #if this statement is on the root ast_body
-                s = z3.Solver()
-                s.add(node_state['constraints'])
-                is_satisfied    = s.check()
 
-                if is_satisfied.r == 1:
+                if isfeasible:
                     #if path conditions are satisfiable
                     string_solutions = self.get_solutions(s.model(), node_state)
-                    isfeasible = True
 
                     if string_solutions == "":
                         #this is what happens when any input works
@@ -470,6 +473,7 @@ class SourceCodeDigraph:
 
 
                 node_statement += "[font color='{0}']{1}[/font]".format(self.constraint_color, string_solutions)
+
 
         return node_statement, is_last_statement, isfeasible
 
@@ -544,14 +548,31 @@ class SourceCodeDigraph:
         return node_state_copy
 
 
-    def is_node_state_feasible(self, node_state):
-        s = z3.Solver()
-        s.add(node_state['constraints'])
-        is_satisfied = s.check()
+    def create_node_on_digraph_based_on_feasibility(self, isfeasible, node_id, parent_node_id,
+                                                    node_type, is_last_statement,
+                                                    edge_message_with_parent, node_statement
+    ):
+        if self.only_show_feasible_paths:
+            if isfeasible:
+                #only adds node when node_state is feasible
+                self.create_node_on_digraph(node_statement,
+                                            node_id, parent_node_id,
+                                            node_type, is_last_statement,
+                                            edge_message_with_parent
+                )
+        else:
+            self.create_node_on_digraph(node_statement,
+                                        node_id, parent_node_id,
+                                        node_type, is_last_statement,
+                                        edge_message_with_parent
+            )
 
-        if is_satisfied.r == 1:
-            return True
-        return False
+
+    def update_node_type(self, node_type, node_state):
+        if node_type == "If":
+            node_state['type']=False
+        else:
+            node_state['type']=None
 
     def return_node_and_all_its_children(self, ast=None, ast_path=None,
                                           node_state=None, parent_node_id=None):
@@ -625,26 +646,14 @@ class SourceCodeDigraph:
         node_statement = self.modify_node_statement(node_statement, node_id, is_last_statement)
         edge_message_with_parent = node_state["type"]
 
-        if self.only_show_feasible_paths:
-            if isfeasible or self.is_node_state_feasible(node_state):
-                #only adds node when node_state is feasible
-                self.create_node_on_digraph(node_statement,
-                                            node_id, parent_node_id,
-                                            node_type, is_last_statement,
-                                            edge_message_with_parent
-                )
-        else:
-            self.create_node_on_digraph(node_statement,
-                                        node_id, parent_node_id,
-                                        node_type, is_last_statement,
-                                        edge_message_with_parent
-            )
 
+        self.create_node_on_digraph_based_on_feasibility(isfeasible, node_id, parent_node_id,
+                                                            node_type, is_last_statement,
+                                                            edge_message_with_parent, node_statement
+                                                        )
 
-        if node_type == "If":
-            node_state['type']=False
-        else:
-            node_state['type']=None
+        self.update_node_type(node_type, node_state)
+
 
         if error_present:
             """
