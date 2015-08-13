@@ -11,7 +11,7 @@
 #!/usr/bin/env python
 
 import pygraphviz as pgv
-import modules.astor as astor
+import halfwaytree.astor as astor
 import ast
 import z3
 

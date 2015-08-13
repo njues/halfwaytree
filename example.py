@@ -13,7 +13,7 @@
 #!/usr/bin/env python
 
 
-import modules.digraph as digraph
+import halfwaytree.digraph as digraph
 
 example1 = """
 var1=2

@@ -9,6 +9,7 @@ sudo pip install pygraphviz
 ```
 (2) Test installation
 ```
+python
 import pygraphviz
 ```
 
@@ -28,6 +29,7 @@ import pygraphviz
 (3) Test installation
 
 ```
+python
 import z3
 ```
 
