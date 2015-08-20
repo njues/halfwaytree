@@ -1,5 +1,12 @@
-Install Instructions
+Install Instructions Using Vagrant
 ===========
+
+####These instructions show you how to install Halfwaytree and test it on a brand-new virtual Ubuntu environment.
+
+Assumptions:<br>
+1. you have Vagrant installed<br>
+2. you have connection to the internt
+<br><br>
 
 (0) Activate Virtual Machine
 ```
