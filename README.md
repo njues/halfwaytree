@@ -7,8 +7,7 @@ Halfwaytree
     Symbolic execution is a method for automatically generating test 
     cases from a computer program. Some great introductory videos 
     on symbolic execution are below:
-[Symbolic Execution Introductory video1](https://www.youtube.com/watch?v=CJccn9d2t5w)
-
+[Symbolic Execution Introductory video1](https://www.youtube.com/watch?v=CJccn9d2t5w)<br>
 [Symbolic Execution Introductory video2](https://www.youtube.com/watch?v=mffhPgsl8Ws)
 
 ###About Halfwaytree
@@ -24,8 +23,7 @@ Halfwaytree
     how to install Halfwaytree's dependencies.
 
 ###How To Install
-[How to install Halfwaytree without Vagrant](https://github.com/sudouser2010/halfwaytree/blob/master/install-instructions.md)
-
+[How to install Halfwaytree without Vagrant](https://github.com/sudouser2010/halfwaytree/blob/master/install-instructions.md)<br>
 [How to install Halfwaytree with Vagrant](https://github.com/sudouser2010/halfwaytree/blob/master/install-instructions-with-vagrant.md)
 
 ###Example Usage
