@@ -5,7 +5,8 @@ Install Instructions Using Vagrant
 
 Assumptions:<br>
 1. you have Vagrant installed<br>
-2. you have connection to the internet
+2. you have connection to the internet<br>
+3. You don't have Halfwaytree downloaded yet
 <br><br>
 
 (0) Activate Virtual Machine
