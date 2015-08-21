@@ -2,7 +2,7 @@ Install Instructions Without Vagrant
 ===========
 
 Assumptions:<br>
-1. you have connection to the internet
+1. you have connection to the internet<br>
 2. You don't have Halfwaytree downloaded yet
 <br><br>
 
