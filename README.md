@@ -14,13 +14,19 @@ Halfwaytree
 ###About Halfwaytree
     Right now, Halfwaytree is only in its infancy (phase two of development). 
     This project is a proof of concept I use for my dissertation research. 
-    You're welcome to help me extend it and bring it to the next level.
+    You're welcome to help me extend it and bring it to the next level.I'm
+    looking for someone to help write unittests.
 
 ###Why Use Halfwaytree ?
     Once the dependencies are installed, it can be used simply by importing 
     a module. The emphasis of Halfwaytree is simplicity so you can focus on 
     testing your code. See the read me file inside the doc folder to see 
     how to install Halfwaytree's dependencies.
+
+###How To Install
+[How to install Halfwaytree without Vagrant](https://github.com/sudouser2010/halfwaytree/blob/master/install-instructions.md)
+
+[How to install Halfwaytree with Vagrant](https://github.com/sudouser2010/halfwaytree/blob/master/install-instructions-with-vagrant.md)
 
 ###Example Usage
 
