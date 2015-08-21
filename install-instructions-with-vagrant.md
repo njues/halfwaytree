@@ -56,4 +56,11 @@ git clone https://github.com/sudouser2010/halfwaytree.git
 ```
 cd halfwaytree
 python example.py
+
+#This should produce an image in your folder called example.png
+
+#note if you get a Segmentation fault error here, 
+#then reinstall Pygraphviz with "sudo pip install pygraphviz" 
+#and try again
 ```
+
