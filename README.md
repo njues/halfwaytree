@@ -13,7 +13,7 @@ Halfwaytree
 ###About Halfwaytree
     Right now, Halfwaytree is only in its infancy (phase two of development). 
     This project is a proof of concept I use for my dissertation research. 
-    You're welcome to help me extend it and bring it to the next level.I'm
+    You're welcome to help me extend it and bring it to the next level. I'm
     looking for someone to help write unittests.
 
 ###Why Use Halfwaytree ?
