@@ -29,7 +29,7 @@ Halfwaytree
 ###Example Usage
 
 ```
-import modules.digraph as digraph
+import halfwaytree.digraph as digraph
 
 example1 = """
 x=0
