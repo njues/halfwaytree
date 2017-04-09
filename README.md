@@ -17,10 +17,10 @@ Halfwaytree
 [Symbolic Execution Introductory video2](https://www.youtube.com/watch?v=mffhPgsl8Ws)
 
 ### About Halfwaytree
-    Right now, Halfwaytree is only in its infancy (phase two of development). 
-    This project is a proof of concept I use for my dissertation research. 
-    You're welcome to help me extend it and bring it to the next level. I'm
-    looking for someone to help write unittests.
+    Halfwaytree is named after the neighborhood of Half Way Tree in Kingston, Jamaica. 
+    What's interesting is that Halfwaytree generates trees of Python code while
+    doing symbolic execution. It can output the tree as a PNG.
+    See example output below for more info.
 
 ### Why Use Halfwaytree ?
     Once the dependencies are installed, it can be used simply by importing 
