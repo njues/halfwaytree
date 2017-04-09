@@ -3,6 +3,11 @@ Halfwaytree
 
 ### Symbolic execution for Python applications
 
+### Purpose Of Project
+    I started this project for my graduate CS research project. To add, Halfwaytree is feature 
+    complete and I no longer intend on adding new functionality. I invite you to extend, fork 
+    or even use this code as inspiration for your own symbolic execution project.
+
 ### What Is Symbolic Execution ?
     Symbolic execution is a method for automatically generating test 
     cases from a computer program. Some great introductory videos 
